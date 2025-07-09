@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Robot Face Bridge Demo Launch File -->
+    
+    <!-- Robot Control Node -->
+    <node name="robot_control" pkg="maple_control" type="robot_ctr.py" output="screen">
+        <param name="device_name" value="/dev/ttyUSB0" />
+        <param name="baudrate" value="1000000" />
+    </node>
+    
+    <!-- Robot Face Bridge Node -->
+    <node name="robot_face_bridge" pkg="maple_control" type="robot_face_bridge.py" output="screen">
+        <param name="robot_name" value="Agent" />
+        <param name="update_rate" value="2.0" />
+    </node>
+    
+    <!-- Lesson Simulator Node (for testing) -->
+    <node name="lesson_simulator" pkg="maple_control" type="lesson_simulator.py" output="screen">
+        <param name="simulation_rate" value="5.0" />
+        <param name="interactive_mode" value="false" />
+    </node>
+    
+    <!-- RViz for visualization (optional) -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find maple_control)/config/robot_face.rviz" if="$(arg rviz)" />
+    
+    <!-- Joint State Publisher for motor visualization -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <param name="use_gui" value="false" />
+        <rosparam param="source_list">["/robot/joint_states"]</rosparam>
+    </node>
+    
+    <!-- Robot State Publisher -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+        <param name="publish_frequency" value="30.0" />
+    </node>
+    
+</launch> 
