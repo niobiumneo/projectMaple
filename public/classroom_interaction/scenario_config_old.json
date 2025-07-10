@@ -1,0 +1,130 @@
+{
+    "scenario_name": "classroom_interaction",
+    "states": [
+      {
+        "id": 1,
+        "image": "classroom.png",
+        "audio": "N_sit_in_classroom.mp3",
+        "face": "default",
+        "speech": "Welcome to our classroom session!",
+        "transition": {
+          "type": "time",
+          "duration": 7000
+        }
+      },
+      {
+        "id": 2,
+        "image": "Canada.png",
+        "text": "Let's learn some cities in Canada!",
+        "face": "happy",
+        "speech": "Let's learn some cities in Canada!",
+        "transition": {
+            "type": "time",
+            "duration": 3000
+          }
+      },
+      {
+        "id": 3,
+        "image": "Ottawa.png",
+        "text": "Ottawa is the capital of Canada",
+        "audio": "L_Ottawa.mp3",
+        "motion": "headnode",
+        "face": "default",
+        "speech": "Ottawa is the capital of Canada",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 4,
+        "image": "Quebec_city.png",
+        "text": "Quebec City is the capital of Quebec",
+        "audio": "L_Quebec_city.mp3",
+        "motion": "headnode",
+        "face": "happy",
+        "speech": "Quebec City is the capital of Quebec",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 5,
+        "image": "raise_hand.png",
+        "text": "Raise your hand!",
+        "audio": "N_post_question.mp3",
+        "face": "happy",
+        "speech": "Raise your hand if you know the answer!",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 6,
+        "text": "Which city is the capital of Canada?",
+        "audio": "Q_capital.mp3",
+        "motion": "think",
+        "face": "default",
+        "speech": "Which city is the capital of Canada?",
+        "options": ["Ottawa","Quebec_city","Toronto"],
+        "answer": "Ottawa",
+        "transition": {
+            "type": "feedback"
+          }
+      },
+      {
+        "id": 7,
+        "image": "Toronto.png",
+        "audio": "L_Toronto.mp3",
+        "text": "Toronto is the capital of Ontario",
+        "motion": "headnode",
+        "face": "default",
+        "speech": "Toronto is the capital of Ontario",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 8,
+        "image": "Victoria.png",
+        "audio": "L_Victoria.mp3",
+        "text": "Victoria is the capital of British Columbia",
+        "motion": "headnode",
+        "face": "happy",
+        "speech": "Victoria is the capital of British Columbia",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 9,
+        "image": "raise_hand.png",
+        "text": "Raise your hand!",
+        "audio": "N_post_question.mp3",
+        "face": "happy", 
+        "speech": "Raise your hand if you know this one!",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 10,
+        "text": "Victoria is the capital of which province?",
+        "audio": "Q_Victoria.mp3",
+        "motion": "think",
+        "face": "default",
+        "speech": "Victoria is the capital of which province?",
+        "options": ["Ontario","Quebec","British Columbia"],
+        "answer": "British Columbia",
+        "transition": {
+            "type": "feedback"
+          }
+      }
+    ]
+  }
+  

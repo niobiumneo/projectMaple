@@ -1,0 +1,39 @@
+{
+  "scenario_name": "your_scenario_name",
+  "states": [
+    {
+      "id": 1,
+      "image": "image_file1.png",  // Path to the image file (optional)
+      "audio": "audio_file1.mp3",  // Path to the audio file (optional)
+      "text": "text to display",        // Text to display on the screen (optional)
+      "motion": "motion_command", // Motion command to send to ROS (optional)
+      "transition": {
+        "type": "time",                // Transition type: "time" or "feedback"
+        "duration": 5000               // Duration in milliseconds for the "time" transition
+      }
+    },
+    {
+      "id": 2,
+      "image": "image_file2.png",  // Image, text, audio, and motion (optional)
+      "text": "text to display",
+      "audio": "audio_file2.mp3",
+      "motion": "motion_command",
+      "transition": {
+        "type": "time",
+        "duration": 5000
+      }
+    },
+    {
+      "id": 3,
+      "text": "Your question here",     // Question with options (used with feedback transition)
+      "audio": "audio_file3.mp3",
+      "motion": "motion_command",
+      "options": ["Option_1", "Option_2", "Option_3"], // List of options
+      "answer": "Option_x",       // Correct answer among the options
+      "transition": {
+        "type": "feedback"              // Transition based on user feedback
+      }
+    }
+    // more states as needed
+  ]
+}

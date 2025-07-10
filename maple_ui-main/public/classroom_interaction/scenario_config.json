@@ -1,0 +1,113 @@
+{
+    "scenario_name": "classroom_interaction",
+    "states": [
+      {
+        "id": 1,
+        "image": "classroom.png",
+        "audio": "N_sit_in_classroom.mp3",
+        "motion": "narrate",
+        "transition": {
+          "type": "time",
+          "duration": 7000
+        }
+      },
+      {
+        "id": 2,
+        "image": "Canada.png",
+        "text": "Let's learn some cities in Canada!",
+        "transition": {
+            "type": "time",
+            "duration": 3000
+          }
+      },
+      {
+        "id": 3,
+        "image": "Ottawa.png",
+        "text": "Ottawa is the capital of Canada",
+        "audio": "L_Ottawa.mp3",
+        "motion": "explain",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 4,
+        "image": "Quebec_city.png",
+        "text": "Quebec City is the capital of Quebec",
+        "audio": "L_Quebec_city.mp3",
+        "motion": "narrate",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 5,
+        "image": "raise_hand.png",
+        "text": "Raise your hand!",
+        "audio": "N_post_question.mp3",
+        "motion": "explain",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 6,
+        "text": "Which city is the capital of Canada?",
+        "audio": "Q_capital.mp3",
+        "motion": "think",
+        "options": ["Ottawa","Quebec_city","Toronto"],
+        "answer": "Ottawa",
+        "transition": {
+            "type": "feedback"
+          }
+      },
+      {
+        "id": 7,
+        "image": "Toronto.png",
+        "audio": "L_Toronto.mp3",
+        "text": "Toronto is the capital of Ontario",
+        "motion": "narrate",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 8,
+        "image": "Victoria.png",
+        "audio": "L_Victoria.mp3",
+        "text": "Victoria is the capital of British Columbia",
+        "motion": "explain",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 9,
+        "image": "raise_hand.png",
+        "text": "Raise your hand!",
+        "audio": "N_post_question.mp3",
+        "motion": "narrate",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 10,
+        "text": "Victoria is the capital of which province?",
+        "audio": "Q_Victoria.mp3",
+        "motion": "think",
+        "options": ["Ontario","Quebec","British Columbia"],
+        "answer": "British Columbia",
+        "transition": {
+            "type": "feedback"
+          }
+      }
+    ]
+  }
+  
