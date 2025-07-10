@@ -1,0 +1,79 @@
+{
+    "pause_durations": [],  
+    "motors": [
+        {
+            "id": 1,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [190]
+        },
+        {
+            "id": 2,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [190]
+        },
+        {
+            "id": 3,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [170]
+        },
+        {
+            "id": 4,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [190]
+        },
+        {
+            "id": 5,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [140]
+        },
+        {
+            "id": 6,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [240]
+        },
+        {
+            "id": 7,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [230]
+        },
+        {
+            "id": 8,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [260]
+        },
+        {
+            "id": 9,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [90]
+        },
+        {
+            "id": 10,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [180]
+        },
+        {
+            "id": 11,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [180]
+        },
+        {
+            "id": 12,
+            "profile_speed": 50,
+            "profile_acceleration": 100,
+            "goal_positions": [120]
+        }
+    
+
+    ]
+}

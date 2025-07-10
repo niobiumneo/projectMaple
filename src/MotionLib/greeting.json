@@ -1,0 +1,77 @@
+{
+    "pause_durations": [0,0,0],  
+    "motors": [
+        {
+            "id": 1,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [230, 230, 230, 230]
+        },
+        {
+            "id": 2,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [180, 180, 180, 180]
+        },
+        {
+            "id": 3,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [170, 170, 170, 170]
+        },
+        {
+            "id": 4,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [190, 190, 190, 190]
+        },
+        {
+            "id": 5,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [220, 145, 220, 145]
+        },
+        {
+            "id": 6,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [170,170,170,170]
+        },
+        {
+            "id": 7,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [230, 230, 230,230]
+        },
+        {
+            "id": 8,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [250, 250,250,250]
+        },
+        {
+            "id": 9,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [100, 100,100,100]
+        },
+        {
+            "id": 10,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [170,170,170,170]
+        },
+        {
+            "id": 11,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [180, 180, 180, 180]
+        },
+        {
+            "id": 12,
+            "profile_speed": 150,
+            "profile_acceleration": 100,
+            "goal_positions": [180, 180, 180, 180]
+        }
+    ]
+}
