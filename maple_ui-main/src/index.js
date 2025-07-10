@@ -12,7 +12,7 @@ function App() {
 
   useEffect(() => {
     const rosInstance = new ROSLIB.Ros({
-      url: 'ws://192.168.2.26:9090'  
+      url: 'ws://192.168.10.101:9090'  
     });
 
     rosInstance.on('connection', () => {
