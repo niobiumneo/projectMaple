@@ -1,4 +1,8 @@
 {
+    "motion_type": "sad",
+    "face_expression": "sad",
+    "emotion": "sad",
+    "description": "Sad motion with corresponding sad facial expression",
     "pause_durations": [],  
     "motors": [
         {

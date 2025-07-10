@@ -1,4 +1,8 @@
 {
+    "motion_type": "happy",
+    "face_expression": "happy",
+    "emotion": "happy",
+    "description": "Happy motion with corresponding happy facial expression",
     "pause_durations": [],  
     "motors": [
         {
