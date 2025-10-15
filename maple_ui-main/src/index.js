@@ -73,7 +73,22 @@ function App() {
         topic.publish(message);
         console.log(`Published motion: ${state.motion}`);
       }
+      
+      if(state.tts){
+        const ttsTopic = new ROSLIB.Topic({
+          ros: ros,
+          name: '/maple_tts',
+          messageType: 'std_msgs/String'
+        });
   
+        const ttsMessage = new ROSLIB.Message({
+          data: state.tts
+        });
+  
+        ttsTopic.publish(ttsMessage);
+        console.log(`Published TTS: ${state.tts}`);
+      }
+
       if (state.transition.type === 'time') {
         const timeoutId = setTimeout(() => {
           setCurrentStateIndex((prevIndex) => prevIndex + 1);
@@ -82,6 +97,7 @@ function App() {
         return () => clearTimeout(timeoutId);
       }
     }
+
   }, [ros, currentScenario, currentStateIndex]);
   
   const handleOptionClick = (selectedOption) => {

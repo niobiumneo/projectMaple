@@ -4,6 +4,7 @@
       {
         "id": 1,
         "audio": "maplehi.mp3",
+        "tts": "Hello! My name is Maple. I'm going to be your guide today.",
         "motion": "turnright",
         "transition": {
           "type": "time",
