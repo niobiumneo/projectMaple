@@ -116,22 +116,22 @@ function App() {
     const state = currentScenario.states[currentStateIndex];
     const correct = selectedOption === state.answer;
 
-    if (mapleExpr) {
-      mapleExpr.publish(new ROSLIB.Message({ data: correct ? 'HAPPY' : 'SAD' }));
-      console.log(`Published /maple_expression: ${correct ? 'HAPPY' : 'SAD'}`);
-    }
+    // if (mapleExpr) {
+    //   mapleExpr.publish(new ROSLIB.Message({ data: correct ? 'HAPPY' : 'SAD' }));
+    //   console.log(`Published /maple_expression: ${correct ? 'HAPPY' : 'SAD'}`);
+    // }
 
     // Optional: also send a quick action (e.g., nod motion + short face)
-    // if (mapleAction) {
-    //   mapleAction.publish(new ROSLIB.Message({
-    //     data: JSON.stringify({
-    //       motion: correct ? 'nod' : 'shake',
-    //       expression: correct ? 'HAPPY' : 'SAD',
-    //       face_ms: 1000,
-    //       sync: 'parallel'
-    //     })
-    //   }));
-    // }
+    if (mapleAction) {
+      mapleAction.publish(new ROSLIB.Message({
+        data: JSON.stringify({
+          motion: correct ? 'happy' : 'sad',
+          expression: correct ? 'HAPPY' : 'SAD',
+          face_ms: 1000,
+          sync: 'parallel'
+        })
+      }));
+    }
 
     // Local feedback sounds (browser mp3s), same as before
     setFeedbackAudio(correct ? '/CORRECT.mp3' : '/INCORRECT.mp3');

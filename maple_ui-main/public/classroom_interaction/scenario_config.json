@@ -3,7 +3,7 @@
     "states": [
       {
         "id": 1,
-        "audio": "maplehi.mp3",
+        "tts": "maplehi",
         "motion": "turnright",
         "transition": {
           "type": "time",
@@ -22,6 +22,8 @@
       {
         "id": 1,
         "image": "bus_stop0.png",
+        "expression":"default",
+        "face_ms":1200,
         "audio": "willow_buststop0.mp3",
         "motion": "lookstraight",
         "transition": {
@@ -61,7 +63,7 @@
       {
         "id": 5,
         "image": "bus_stop.png",
-        "audio": "maple01.mp3",
+        "tts": "maple01",
         "motion": "explain",
         "transition": {
             "type": "time",
@@ -71,7 +73,7 @@
       {
         "id": 6,
         "image": "bus_stop.png",
-        "audio": "maplehi.mp3",
+        "tts": "maplehi",
         "motion": "wave",
         "transition": {
             "type": "time",
@@ -81,7 +83,7 @@
     {
       "id": 7,
       "image": "bus_stop.png",
-      "audio": "maplehi copy.mp3",
+      "tts": "maplehi",
       "motion": "wave",
       "transition": {
           "type": "time",
@@ -91,7 +93,7 @@
     {
       "id": 8, 
       "image": "bus_stop.png",
-      "audio": "maplehi copy 2.mp3",
+      "tts": "maplehi",
       "motion": "wave",
       "transition": {
           "type": "time", 
@@ -101,7 +103,7 @@
     {
       "id": 9, 
       "image": "bus_stop.png",
-      "audio": "goodjob.mp3",
+      "tts": "goodjob",
       "motion": "happy",
       "transition": {
           "type": "time", 
@@ -111,7 +113,7 @@
     {
       "id": 10,
       "image": "bus_stop.png",
-      "audio": "letsmoveon.mp3",
+      "tts": "letsmoveon",
       "motion": "lookstraight",
       "transition": {
           "type": "time", 
@@ -187,7 +189,7 @@
     {
       "id": 18,
       "image": "quiztime.png",
-      "audio": "maple_quiz.mp3",
+      "tts": "maple_quiz",
       "motion": "happy",
       "transition": {
           "type": "time",
