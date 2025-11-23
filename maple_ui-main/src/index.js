@@ -15,6 +15,9 @@ function App() {
   const [currentScenario, setCurrentScenario] = useState(null);
   const [currentStateIndex, setCurrentStateIndex] = useState(0);
   const [feedbackAudio, setFeedbackAudio] = useState(null);
+  const [quizStartTime, setQuizStartTime] = useState(null);
+  const [quizResponses, setQuizResponses] = useState([]);
+  const [buttonPressCounts, setButtonPressCounts] = useState({});
 
   // 1) Connect to rosbridge
   useEffect(() => {
@@ -111,10 +114,38 @@ function App() {
     }
   }, [ros, currentScenario, currentStateIndex, mapleAction]);
 
+  useEffect(() => {
+    if (!currentScenario || currentStateIndex >= currentScenario.states.length) return;
+    const state = currentScenario.states[currentStateIndex];
+    if (state.options) {
+      setQuizStartTime(Date.now());
+    } else {
+      setQuizStartTime(null);
+    }
+  }, [currentScenario, currentStateIndex]);
+
   // 4) When user answers: drive face feedback with /maple_expression (HAPPY/SAD)
   const handleOptionClick = (selectedOption) => {
     const state = currentScenario.states[currentStateIndex];
     const correct = selectedOption === state.answer;
+    const responseTimeMs = quizStartTime ? Date.now() - quizStartTime : null;
+
+    setButtonPressCounts((prevCounts) => ({
+      ...prevCounts,
+      [selectedOption]: (prevCounts[selectedOption] || 0) + 1,
+    }));
+
+    setQuizResponses((prev) => ([
+      ...prev,
+      {
+        stateId: state.id,
+        prompt: state.text || null,
+        selected: selectedOption,
+        correct,
+        responseTimeMs,
+        timestamp: new Date().toISOString(),
+      },
+    ]));
 
     // if (mapleExpr) {
     //   mapleExpr.publish(new ROSLIB.Message({ data: correct ? 'HAPPY' : 'SAD' }));
@@ -144,7 +175,13 @@ function App() {
     } else {
       setTimeout(() => setFeedbackAudio(null), 3000);
     }
+
+    setQuizStartTime(Date.now());
   };
+
+  const totalResponses = quizResponses.length;
+  const correctResponses = quizResponses.filter((resp) => resp.correct).length;
+  const wrongResponses = totalResponses - correctResponses;
 
   return (
     <div className="App">
@@ -165,6 +202,40 @@ function App() {
           borderRadius:8, fontSize:12, background:'#111', color:'#fff', opacity:0.8
         }}>
           ROS: {connectionStatus}
+        </div>
+
+        <div style={{
+          position:'fixed', top:12, left:12, padding:'10px 12px', maxWidth:320,
+          borderRadius:8, fontSize:12, background:'rgba(0,0,0,0.65)', color:'#fff',
+          boxShadow:'0 2px 10px rgba(0,0,0,0.3)', textAlign:'left', lineHeight:1.4
+        }}>
+          <div style={{fontWeight:'bold', marginBottom:6}}>Mini Quiz Analytics</div>
+          <div>Total responses: {totalResponses}</div>
+          <div>Correct: {correctResponses}</div>
+          <div>Wrong: {wrongResponses}</div>
+          {quizResponses.length > 0 && (
+            <div style={{marginTop:8}}>
+              <div style={{fontWeight:'bold'}}>Recent answers</div>
+              <ul style={{paddingLeft:16, margin:4}}>
+                {quizResponses.slice(-5).reverse().map((resp, idx) => (
+                  <li key={idx}>
+                    State {resp.stateId}: {resp.selected} ({resp.correct ? 'correct' : 'wrong'})
+                    {resp.responseTimeMs !== null && ` – ${resp.responseTimeMs} ms`}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {Object.keys(buttonPressCounts).length > 0 && (
+            <div style={{marginTop:8}}>
+              <div style={{fontWeight:'bold'}}>Button presses</div>
+              <ul style={{paddingLeft:16, margin:4}}>
+                {Object.entries(buttonPressCounts).map(([label, count]) => (
+                  <li key={label}>{label}: {count}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {currentScenario && currentStateIndex < currentScenario.states.length && (
