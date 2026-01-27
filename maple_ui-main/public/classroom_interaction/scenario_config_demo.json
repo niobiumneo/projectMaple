@@ -1,0 +1,60 @@
+{
+    "scenario_name": "classroom_interaction",
+    "states": [
+      {
+        "id": 1,
+        "tts": "maplehi",
+        "motion": "wave",
+        "transition": {
+          "type": "time",
+          "duration": 2000
+        }
+      },
+      {
+        "id": 1,
+        "tts":"intro",
+        "motion": "explain",
+        "transition": {
+          "type": "time",
+          "duration": 15000
+        }
+      },
+      {
+        "id": 1,
+        "tts":"final1",
+        "motion": "explain",
+        "transition": {
+          "type": "time",
+          "duration": 15000
+        }
+      },
+      {
+        "id": 1,
+        "tts":"final2",
+        "motion": "think",
+        "transition": {
+          "type": "time",
+          "duration": 15000
+        }
+      },
+      {
+        "id": 1,
+        "tts":"final3",
+        "motion": "lookstraight",
+        "transition": {
+          "type": "time",
+          "duration": 15000
+        }
+      },{
+        "id": 1,
+        "tts":"thanksforwatcching",
+        "motion": "wave",
+        "transition": {
+          "type": "time",
+          "duration": 15000
+        }
+      }
+
+    ]
+  }
+  
