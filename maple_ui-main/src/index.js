@@ -12,7 +12,7 @@ function App() {
   const [currentStateIndex, setCurrentStateIndex] = useState(0);
   const [feedbackAudio, setFeedbackAudio] = useState(null);
 
-  // Pause/resume state
+  // Pause/play state
   const [isPaused, setIsPaused] = useState(false);
   const [resumeNonce, setResumeNonce] = useState(0);
 
@@ -22,10 +22,10 @@ function App() {
   const stateAudioRef = useRef(null);
   const feedbackAudioRef = useRef(null);
 
-  // ROS topics (refs so they persist without re-render loops)
+  // ROS topics (refs)
   const motionTopicRef = useRef(null);              // /motion_command
   const interactionControlRef = useRef(null);       // /interaction_control
-  const mapleActionRef = useRef(null);              // /maple_action (JSON in std_msgs/String)
+  const mapleActionRef = useRef(null);              // /maple_action
   const mapleExprRef = useRef(null);                // /maple_expression
   const mapleAppearanceRef = useRef(null);          // /maple_appearance
 
@@ -66,9 +66,7 @@ function App() {
     t.publish(new ROSLIB.Message({ data: motionName }));
   };
 
-  // This is the important part you lost: publish Maple orchestration payload
   const publishMapleActionForState = (state, { includeMotion = true } = {}) => {
-    // Optional direct expression/appearance topics (useful even if orchestrator ignores them)
     if (state.expression && mapleExprRef.current) {
       mapleExprRef.current.publish(new ROSLIB.Message({ data: String(state.expression) }));
     }
@@ -76,14 +74,10 @@ function App() {
       mapleAppearanceRef.current.publish(new ROSLIB.Message({ data: String(state.appearance) }));
     }
 
-    // Main combined action payload
     const payload = {};
     if (includeMotion && state.motion) payload.motion = state.motion;
-
-    // If your orchestrator expects a key like "intro1" to play via PyLips/TTS:
     if (state.tts) payload.tts = state.tts;
 
-    // Some setups use expression/appearance inside maple_action too
     if (state.expression) payload.expression = state.expression;
     if (state.appearance) payload.appearance = state.appearance;
 
@@ -100,28 +94,25 @@ function App() {
   const handlePause = () => {
     if (isPaused) return;
     setIsPaused(true);
+
     clearAllTimeouts();
     stopAllBrowserAudio();
     setFeedbackAudio(null);
 
-    // Pause robot motion execution (robot_ctr_with_pause)
     publishInteractionControl('pause');
-
-    // If you later add pause support in orchestrator, you could also publish there.
   };
 
-  const handleResume = () => {
+  // “Play” is just UI naming. Robot controller still expects the word "resume".
+  const handlePlay = () => {
     if (!isPaused) return;
     setIsPaused(false);
 
-    // Resume robot motion execution (robot_ctr_with_pause repeats current pose)
     publishInteractionControl('resume');
 
     // Restart browser audio + timers for this state
     setResumeNonce((n) => n + 1);
 
-    // Re-trigger speech/face from the beginning of this state by re-publishing maple_action
-    // But do NOT include motion here, because robot_ctr is already resuming motion.
+    // Re-trigger speech/face from start (do not re-trigger motion here)
     if (currentScenario && currentStateIndex < currentScenario.states.length) {
       const state = currentScenario.states[currentStateIndex];
       publishMapleActionForState(state, { includeMotion: false });
@@ -131,9 +122,8 @@ function App() {
   // ROS connection
   useEffect(() => {
     const rosInstance = new ROSLIB.Ros({
-      // best: always connect to the same host serving the UI
-      // url: `ws://${window.location.hostname}:9090`,
       url: 'ws://192.168.10.101:9090',
+      // or: url: `ws://${window.location.hostname}:9090`,
     });
 
     rosInstance.on('connection', () => {
@@ -141,7 +131,6 @@ function App() {
       setConnectionStatus('Connected');
       setRos(rosInstance);
 
-      // Create topics once
       motionTopicRef.current = new ROSLIB.Topic({
         ros: rosInstance,
         name: '/motion_command',
@@ -227,20 +216,16 @@ function App() {
 
     const state = currentScenario.states[currentStateIndex];
 
-    // Avoid duplicate publishes caused by React StrictMode dev double-effect
     const key = `state-${currentStateIndex}-resume-${resumeNonce}`;
     if (lastPublishKeyRef.current !== key) {
       lastPublishKeyRef.current = key;
 
-      // Move robot
       if (state.motion) publishMotion(state.motion);
 
-      // Trigger robot speech + face (PyLips) via orchestrator topics
-      publishMapleActionForState(state, { includeMotion: false }); // keep false if you're publishing motion_command directly
-      // If you want orchestrator to also drive motion, flip includeMotion:true and remove publishMotion above.
+      // speech/face
+      publishMapleActionForState(state, { includeMotion: false });
     }
 
-    // Timed transition
     if (state.transition && state.transition.type === 'time') {
       transitionTimeoutRef.current = setTimeout(() => {
         setCurrentStateIndex((prev) => prev + 1);
@@ -250,7 +235,6 @@ function App() {
     return () => clearAllTimeouts();
   }, [ros, currentScenario, currentStateIndex, isPaused, resumeNonce]);
 
-  // Answer click: motion feedback + face feedback + optional orchestrator action
   const handleOptionClick = (selectedOption) => {
     if (!currentScenario) return;
     if (isPaused) return;
@@ -260,15 +244,12 @@ function App() {
     const state = currentScenario.states[currentStateIndex];
     const correct = selectedOption === state.answer;
 
-    // Robot motion feedback
     publishMotion(correct ? 'happy' : 'sad');
 
-    // Face feedback for PyLips
     if (mapleExprRef.current) {
       mapleExprRef.current.publish(new ROSLIB.Message({ data: correct ? 'HAPPY' : 'SAD' }));
     }
 
-    // Optional combined action too (does not need to include motion if you already sent motion_command)
     if (mapleActionRef.current) {
       mapleActionRef.current.publish(
         new ROSLIB.Message({
@@ -281,7 +262,6 @@ function App() {
       );
     }
 
-    // Local feedback mp3 (browser)
     setFeedbackAudio(correct ? '/CORRECT.mp3' : '/INCORRECT.mp3');
 
     feedbackTimeoutRef.current = setTimeout(() => {
@@ -289,6 +269,36 @@ function App() {
       if (correct) setCurrentStateIndex((prev) => prev + 1);
     }, 3000);
   };
+
+  const currentState =
+    currentScenario && currentStateIndex < currentScenario.states.length
+      ? currentScenario.states[currentStateIndex]
+      : null;
+
+  const ControlsBelowImage = () => (
+    <div
+      style={{
+        display: 'flex',
+        gap: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 6,
+        marginBottom: 10,
+      }}
+    >
+      <button onClick={handlePause} disabled={isPaused}>
+        Pause
+      </button>
+
+      <button onClick={handlePlay} disabled={!isPaused}>
+        Play
+      </button>
+
+      <span style={{ fontSize: 12, opacity: 0.8 }}>
+        ROS: {connectionStatus}
+      </span>
+    </div>
+  );
 
   return (
     <div className="App">
@@ -303,24 +313,11 @@ function App() {
           flexDirection: 'column',
         }}
       >
-        {/* Pause/Resume controls */}
-        <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 999 }}>
-          <button onClick={handlePause} disabled={isPaused} style={{ marginRight: 8 }}>
-            Pause
-          </button>
-          <button onClick={handleResume} disabled={!isPaused}>
-            Resume
-          </button>
-          <div style={{ marginTop: 8, fontSize: 12, opacity: 0.85 }}>
-            ROS: {connectionStatus}
-          </div>
-        </div>
-
-        {currentScenario && currentStateIndex < currentScenario.states.length && (
+        {currentState && (
           <>
-            {currentScenario.states[currentStateIndex].image && (
+            {currentState.image && (
               <img
-                src={`/${currentScenario.scenario_name}/img/${currentScenario.states[currentStateIndex].image}`}
+                src={`/${currentScenario.scenario_name}/img/${currentState.image}`}
                 alt="state"
                 style={{
                   maxWidth: '100%',
@@ -331,25 +328,27 @@ function App() {
               />
             )}
 
-            {currentScenario.states[currentStateIndex].text && (
-              <p style={{ fontSize: '1.5em', margin: '20px 0', fontWeight: 'bold' }}>
-                {currentScenario.states[currentStateIndex].text}
+            {/* Buttons directly below the image (or will still show below text if no image) */}
+            <ControlsBelowImage />
+
+            {currentState.text && (
+              <p style={{ fontSize: '1.5em', margin: '10px 0', fontWeight: 'bold' }}>
+                {currentState.text}
               </p>
             )}
 
-            {/* Browser-side audio (optional). Robot speech should come from /maple_action tts. */}
-            {!isPaused && currentScenario.states[currentStateIndex].audio && (
+            {!isPaused && currentState.audio && (
               <audio
                 ref={stateAudioRef}
                 key={`state-audio-${currentStateIndex}-${resumeNonce}`}
-                src={`/${currentScenario.scenario_name}/audio/${currentScenario.states[currentStateIndex].audio}`}
+                src={`/${currentScenario.scenario_name}/audio/${currentState.audio}`}
                 autoPlay
               />
             )}
 
-            {currentScenario.states[currentStateIndex].options && (
+            {currentState.options && (
               <div style={{ marginTop: '20px' }}>
-                {currentScenario.states[currentStateIndex].options.map((option, index) => (
+                {currentState.options.map((option, index) => (
                   <button
                     key={index}
                     disabled={isPaused}
@@ -374,7 +373,7 @@ function App() {
 
             {isPaused && (
               <div style={{ marginTop: 12, fontSize: 14, opacity: 0.9 }}>
-                Paused (Resume replays this section from the start)
+                Paused (Play replays this section from the start)
               </div>
             )}
           </>

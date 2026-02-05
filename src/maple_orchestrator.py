@@ -60,6 +60,26 @@ def _resolve_expression(name):
     """Return an AU->intensity dict for the given name, or None."""
     if not name:
         return None
+    elif name == "happy":
+        return {
+'AU1': 0.5,
+'AU2': 1,
+'AU4': 0,
+'AU5': 0,
+'AU7': 0.5,
+'AU12': 1,
+'AU15':0
+}
+    elif name == "sad":
+        return {
+'AU1': 1,
+'AU2': 0,
+'AU4': 0.5,
+'AU5': 1,
+'AU7': 0,
+'AU12': 0,
+'AU15': 1.5
+}
     s = str(name).strip()
     # Try attribute names in multiple casings
     for cand in (s, s.upper(), s.lower(), s.title()):
@@ -120,6 +140,7 @@ def apply_expression(face, name_or_none, duration_ms=1000):
     except Exception:
         duration_ms = 1000
     # RobotFace.express expects an AU dict and time in **milliseconds**
+
     face.express(preset, time=duration_ms)
     rospy.loginfo(f"→ expression: {name_or_none} for {duration_ms} ms")
 
