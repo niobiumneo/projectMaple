@@ -218,37 +218,331 @@
       }
     },
     {
-      "id": 20,
-      "motion": "turnright",
-      "image": "bus_stop.png",
-      "options": ["Hi","Bye!","How are you?"],
-      "transition": {
-        "type": "time",
-        "duration": 3000
-      }
-    },
-    {
-      "id": 21,
-      "motion": "think",
-      "image": "bus_stop.png",
-      "options": ["Hi","Bye!","How are you?"],
-      "audio": "mapleAnswer.mp3",
-      "transition": {
-        "type": "time",
-        "duration": 3000
-      }
-    },
-    {
       "id": 22,
       "motion": "lookstraight",
-      "image": "bus_stop.png",
-      "options": ["Hi","Bye!","How are you?"],
-      "answer": "Hi",
       "transition": {
-        "type": "feedback"
-      }
-    }
+          "type": "time",
+          "duration": 3000
 
-    ]
+      }
+    },
+
+    {
+      "id": 23,
+      "motion": "turnright",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 24,
+      "motion": "happy",
+      "tts": "goodjob",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 25,
+      "motion": "lookstraight",
+      "tts": "letsmoveon",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 26,
+      "image": "maplemarket1.png",
+      "audio":"market1.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+    {
+      "id": 27,
+      "image": "maplemarket2.png",
+      "audio":"marketN2.mp3",
+      "motion": "think",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 27,
+      "image": "maplemarket2.png",
+      "audio":"marketB1.mp3",
+      "motion": "think",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 27,
+      "image": "maplemarket2.png",
+      "audio":"marketN3.mp3",
+      "motion": "lookstraight",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+    {
+      "id": 27,
+      "image": "maplemarket2.5.png",
+      "audio":"marketW1.mp3",
+      "motion": "think",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 27,
+      "image": "maplemarket3.png",
+      "audio":"beaverasks.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+    
+    {
+      "id": 27,
+      "image": "maplemarket3.png",
+      "audio":"marketB2.mp3",
+      "motion": "lookstraight",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+  
+    {
+      "id": 28,
+      "image": "maplemarket3.png",
+      "audio":"marketN3.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+     {
+      "id": 29,
+      "image": "maplemarket3.png",
+      "audio":"marketW2.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    }   ,
+
+    {
+      "id": 29,
+      "image": "maplemarket5.png",
+      "audio":"marketN4.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 29,
+      "image": "maplemarket5.png",
+      "audio":"marketB3.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 29,
+      "image": "maplemarket4.png",
+      "audio":"willowtoonie.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 29,
+      "image": "maplemarket4.png",
+      "audio":"MapleExplainToonie.mp3",
+      "motion": "explain",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+    {
+      "id": 29,
+      "image": "maplemarket4.png",
+      "audio":"MapleToonie.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+    {
+      "id": 29,
+      "image": "maplemarket4.png",
+      "audio":"MapleToonie.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },    {
+      "id": 29,
+      "image": "maplemarket4.png",
+      "audio":"MapleToonie.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 29,
+      "motion":"lookstraight",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+
+    {
+      "id": 29,
+      "image": "maplemarket6.png",
+      "audio":"marketN5.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 29,
+      "image": "maplemarket7.png",
+      "audio":"marketW3.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+    {
+      "id": 29,
+      "image": "maplemarket8.png",
+      "audio":"marketend.mp3",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+    {
+      "id": 19,
+      "audio": "quiz2.mp3",
+      "motion": "think",
+      "image": "maplemarket6.png",
+      "options": ["Red Apple"," Green Apple","Green Banana"],
+      "answer": "Red Apple",
+      "transition": {
+        "type": "time",
+        "duration": 3000
+      }
+    },
+
+    {
+      "id": 19,
+      "audio": "quiz3.mp3",
+      "motion": "lookstraight",
+      "image": "maplemarket4.png",
+      "options": ["Toonie","Loonie","Boonie"],
+      "answer": "Toonie",
+      "transition": {
+        "type": "time",
+        "duration": 3000
+      }
+    },
+
+    {
+      "id": 23,
+      "motion": "turnright",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 24,
+      "motion": "happy",
+      "tts": "GoodJob",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 23,
+      "motion": "explain",
+      "tts":"MapleToonieExplain",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+    {
+      "id": 23,
+      "motion": "lookstraight",
+      "tts":"letsmoveon",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+    {
+      "id": 24,
+      "image":"maplelibrary1.png",
+      "audio":"",
+      "transition": {
+          "type": "time",
+          "duration": 3000
+        }
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ]
   }
   
