@@ -1,0 +1,158 @@
+{
+  "scenario_name": "classroom_interaction",
+  "states": [
+    {
+    "id": 24,
+    "image":"maplelibrary1.png",
+    "audio":"libraryN1.mp3",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+    {
+    "id": 25,
+    "image":"maplelibrary2.png",
+    "audio":"libraryN2.mp3",
+    "motion": "think",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+  
+    {
+    "id": 26,
+    "image":"maplelibrary3.png",
+    "audio":"libraryOwl1.mp3",
+    "motion": "lookstraight",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+     {
+    "id": 27,
+    "image":"maplelibrary3.png",
+    "audio":"libraryN3.mp3",
+    "motion": "headnode",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+     {
+    "id": 28,
+    "image":"maplelibrary4.png",
+    "audio":"libraryR1.mp3",
+    "motion":"think",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+     {
+    "id": 29,
+    "image":"maplelibrary5.png",
+    "audio":"libraryN4.mp3",
+    "motion": "lookstraight",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+  
+    {
+    "id": 30,
+    "image":"maplelibrary5.png",
+    "audio":"libraryOwl2.mp3",
+    "motion": "headnode",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+  
+    {
+    "id": 31,
+    "image":"maplelibrary6.png",
+    "audio":"libraryN5.mp3",
+    "motion": "lookstraight",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+    {
+    "id": 31,
+    "image":"maplelibrary6.png",
+    "audio":"libraryR2.mp3",
+    "motion": "lookstraight",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+    {
+    "id": 32,
+    "image":"maplelibrary7.png",
+    "audio":"libraryN6.mp3",
+    "motion": "lookstraight",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+  
+    {
+    "id": 32,
+    "image":"maplelibrary6.png",
+    "motion": "turnright",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+  
+    {
+    "id": 32,
+    "tts":"mapleLibrary",
+    "motion": "happy",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+  
+    {
+    "id": 32,
+    "tts":"mapleLibrary2",
+    "image":"maplelibrary6.png",
+    "motion": "sad",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+  
+    {
+    "id": 32,
+    "tts":"mapleLibrary3",
+    "image":"maplelibrary6.png",
+    "transition": {
+      "type": "time",
+      "duration": 6000
+      }
+    },
+  
+    {
+      "id": 33,
+      "tts":"letsmoveon",
+      "motion":"lookstraight",
+      "transition": {
+        "type": "time",
+        "duration": 6000
+      }
+    }
+  ]
+}

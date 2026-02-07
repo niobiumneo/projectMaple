@@ -1,6 +1,7 @@
 {
     "scenario_name": "classroom_interaction",
     "states": [
+
       {
         "id": 1,
         "tts": "maplehi",
@@ -91,22 +92,22 @@
       }
     },
     {
-      "id": 8, 
+      "id": 8,
       "image": "bus_stop.png",
       "tts": "maplehi",
       "motion": "wave",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 3500
       }
     },
     {
-      "id": 9, 
+      "id": 9,
       "image": "bus_stop.png",
       "tts": "goodjob",
       "motion": "happy",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 3500
       }
     },
@@ -116,7 +117,7 @@
       "tts": "letsmoveon",
       "motion": "lookstraight",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 3500
       }
     },
@@ -125,7 +126,7 @@
       "image": "bus_stop2.png",
       "audio": "willow_busstop03.mp3",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 5000
       }
     },
@@ -135,7 +136,7 @@
       "audio": "willow_bustop04.mp3",
       "motion": "headnode",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 3000
       }
     },
@@ -145,7 +146,7 @@
       "audio": "merrick_moose.mp3",
       "motion": "think",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 3000
       }
     },
@@ -155,7 +156,7 @@
       "audio": "willow_bustop05.mp3",
       "motion": "lookstraight",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 3000
       }
     },
@@ -164,7 +165,7 @@
       "image": "bus_stop4.png",
       "audio": "willow_speaks1.mp3",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 5000
       }
     },
@@ -173,7 +174,7 @@
       "image": "quiztime.png",
       "audio": "quiz.mp3",
       "transition": {
-          "type": "time", 
+          "type": "time",
           "duration": 3000
       }
     },
@@ -205,6 +206,8 @@
           "duration": 3000
         }
     },
+
+ 
     {
       "id": 19,
       "audio": "quiz1.mp3",
@@ -213,9 +216,8 @@
       "options": ["Hi","Bye!","How are you?"],
       "answer": "Hi",
       "transition": {
-        "type": "time",
-        "duration": 3000
-      }
+    "type": "feedback"      
+  }
     },
     {
       "id": 22,
@@ -260,9 +262,11 @@
       "id": 26,
       "image": "maplemarket1.png",
       "audio":"market1.mp3",
+      "motion": "lookstraight",
+      "expression":"default",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 12000
         }
     },
     {
@@ -272,7 +276,7 @@
       "motion": "think",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
         }
     },
 
@@ -283,7 +287,7 @@
       "motion": "think",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
         }
     },
 
@@ -294,7 +298,7 @@
       "motion": "lookstraight",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
         }
     },
     {
@@ -304,7 +308,7 @@
       "motion": "think",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
         }
     },
 
@@ -314,7 +318,7 @@
       "audio":"beaverasks.mp3",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
         }
     },
     
@@ -325,7 +329,7 @@
       "motion": "lookstraight",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4500
         }
     },
   
@@ -335,7 +339,7 @@
       "audio":"marketN3.mp3",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
         }
     },
      {
@@ -344,7 +348,7 @@
       "audio":"marketW2.mp3",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
         }
     }   ,
 
@@ -354,7 +358,7 @@
       "audio":"marketN4.mp3",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 5000
         }
     },
 
@@ -364,7 +368,7 @@
       "audio":"marketB3.mp3",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 5000
         }
     },
 
@@ -374,33 +378,55 @@
       "audio":"willowtoonie.mp3",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 5000
         }
     },
 
     {
       "id": 29,
       "image": "maplemarket4.png",
-      "audio":"MapleExplainToonie.mp3",
+      "motion": "turnright",
+      "transition": {
+          "type": "time",
+          "duration": 2000
+        }
+    },
+
+    {
+      "id": 29,
+      "image": "maplemarket4.png",
+      "tts":"MapleExplainToonie",
       "motion": "explain",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
         }
     },
+
     {
       "id": 29,
       "image": "maplemarket4.png",
-      "audio":"MapleToonie.mp3",
+      "tts":"mapleCanyousay",
+      "motion": "explain",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 4000
+        }
+    },
+
+    {
+      "id": 29,
+      "image": "maplemarket4.png",
+      "tts":"MapleToonie",
+      "transition": {
+          "type": "time",
+          "duration": 4000
         }
     },
     {
       "id": 29,
       "image": "maplemarket4.png",
-      "audio":"MapleToonie.mp3",
+      "tts":"MapleToonie",
       "transition": {
           "type": "time",
           "duration": 3000
@@ -408,7 +434,7 @@
     },    {
       "id": 29,
       "image": "maplemarket4.png",
-      "audio":"MapleToonie.mp3",
+      "tts":"MapleToonie",
       "transition": {
           "type": "time",
           "duration": 3000
@@ -420,7 +446,7 @@
       "motion":"lookstraight",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 2000
         }
     },
 
@@ -450,7 +476,7 @@
       "audio":"marketend.mp3",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 5000
         }
     },
     {
@@ -461,9 +487,7 @@
       "options": ["Red Apple"," Green Apple","Green Banana"],
       "answer": "Red Apple",
       "transition": {
-        "type": "time",
-        "duration": 3000
-      }
+        "type": "feedback"}
     },
 
     {
@@ -474,8 +498,7 @@
       "options": ["Toonie","Loonie","Boonie"],
       "answer": "Toonie",
       "transition": {
-        "type": "time",
-        "duration": 3000
+        "type": "feedback"
       }
     },
 
@@ -491,20 +514,23 @@
     {
       "id": 24,
       "motion": "happy",
+      "expression":"happy",
       "tts": "GoodJob",
       "transition": {
           "type": "time",
           "duration": 3000
         }
     },
+    
 
     {
       "id": 23,
-      "motion": "explain",
-      "tts":"MapleToonieExplain",
+      "motion": "lookstraight",
+      "expression":"default",
+      "tts":"letsmoveon",
       "transition": {
           "type": "time",
-          "duration": 3000
+          "duration": 5000
         }
     },
 
@@ -672,6 +698,8 @@
           }
       },
 
+
+
       {
         "id": 34,
         "audio":"sunsetN1.mp3",
@@ -821,6 +849,25 @@
           "id": 42,
           "tts":"mapleEnd1",
           "motion":"happy",
+          "transition": {
+              "type": "time",
+              "duration": 3000
+            }
+        },
+
+        {
+          "id": 43,
+          "tts":"mapleEnd2",
+          "motion":"explain",
+          "transition": {
+              "type": "time",
+              "duration": 3000
+            }
+        },
+        {
+          "id": 44,
+          "tts":"mapleEnd3",
+          "motion":"wave",
           "transition": {
               "type": "time",
               "duration": 3000

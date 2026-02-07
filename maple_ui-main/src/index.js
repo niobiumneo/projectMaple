@@ -12,8 +12,12 @@ function App() {
   const [currentStateIndex, setCurrentStateIndex] = useState(0);
   const [feedbackAudio, setFeedbackAudio] = useState(null);
 
+  // Story lifecycle
+  const [hasStarted, setHasStarted] = useState(false);
+
   // Pause/play state
-  const [isPaused, setIsPaused] = useState(false);
+  // Start paused so the browser does not try to autoplay audio before user interaction.
+  const [isPaused, setIsPaused] = useState(true);
   const [resumeNonce, setResumeNonce] = useState(0);
 
   // Timers and audio refs (browser audio)
@@ -91,7 +95,26 @@ function App() {
     }
   };
 
+  const handleStart = () => {
+    if (hasStarted) return;
+    setHasStarted(true);
+    setIsPaused(false);
+
+    // If your ROS side only understands pause/resume, resume is safe here.
+    publishInteractionControl('resume');
+
+    // Also re-trigger speech/face from the start of the first state (no motion here)
+    if (currentScenario && currentStateIndex < currentScenario.states.length) {
+      const state = currentScenario.states[currentStateIndex];
+      publishMapleActionForState(state, { includeMotion: false });
+    }
+
+    // Kick the audio effect (helps if audio element is already mounted quickly)
+    setResumeNonce((n) => n + 1);
+  };
+
   const handlePause = () => {
+    if (!hasStarted) return;
     if (isPaused) return;
     setIsPaused(true);
 
@@ -104,6 +127,7 @@ function App() {
 
   // “Play” is just UI naming. Robot controller still expects the word "resume".
   const handlePlay = () => {
+    if (!hasStarted) return;
     if (!isPaused) return;
     setIsPaused(false);
 
@@ -116,6 +140,14 @@ function App() {
     if (currentScenario && currentStateIndex < currentScenario.states.length) {
       const state = currentScenario.states[currentStateIndex];
       publishMapleActionForState(state, { includeMotion: false });
+    }
+
+    // If there's an audio element for the current state, play it explicitly.
+    if (stateAudioRef.current) {
+      stateAudioRef.current.currentTime = 0;
+      stateAudioRef.current.play().catch((error) => {
+        console.warn('Audio playback prevented by browser:', error);
+      });
     }
   };
 
@@ -192,7 +224,7 @@ function App() {
 
   // Load scenario JSON
   useEffect(() => {
-    fetch('/classroom_interaction/scenario_config.json')
+    fetch('/classroom_interaction/scenario_config_library.json')
       .then((response) => {
         if (!response.ok) throw new Error('Network response was not ok');
         return response.json();
@@ -211,6 +243,7 @@ function App() {
     clearAllTimeouts();
 
     if (!ros || !currentScenario) return;
+    if (!hasStarted) return;
     if (isPaused) return;
     if (currentStateIndex >= currentScenario.states.length) return;
 
@@ -233,37 +266,59 @@ function App() {
     }
 
     return () => clearAllTimeouts();
-  }, [ros, currentScenario, currentStateIndex, isPaused, resumeNonce]);
+  }, [ros, currentScenario, currentStateIndex, isPaused, resumeNonce, hasStarted]);
 
-  const handleOptionClick = (selectedOption) => {
-    if (!currentScenario) return;
+  // Try to play the current state's audio whenever it changes or when play is resumed.
+  useEffect(() => {
+    if (!hasStarted) return;
     if (isPaused) return;
-
-    clearAllTimeouts();
+    if (!currentScenario) return;
+    if (currentStateIndex >= (currentScenario?.states?.length ?? 0)) return;
 
     const state = currentScenario.states[currentStateIndex];
-    const correct = selectedOption === state.answer;
-
-    publishMotion(correct ? 'happy' : 'sad');
-
-    if (mapleExprRef.current) {
-      mapleExprRef.current.publish(new ROSLIB.Message({ data: correct ? 'HAPPY' : 'SAD' }));
+    if (state.audio && stateAudioRef.current) {
+      stateAudioRef.current.currentTime = 0;
+      const playPromise = stateAudioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.warn('Audio playback prevented by browser:', error);
+        });
+      }
     }
+  }, [currentStateIndex, resumeNonce, isPaused, currentScenario, hasStarted]);
 
+  const handleOptionClick = (selectedOption) => {
+    if (!currentScenario || isPaused) return;
+    clearAllTimeouts();
+  
+    const state   = currentScenario.states[currentStateIndex];
+    const correct = selectedOption === state.answer;
+    // choose lowercase for motion and expression names
+    const expressionName = correct ? 'happy' : 'sad';
+  
+    // publish the motion
+    publishMotion(expressionName);
+  
+    // publish the expression on /maple_expression
+    if (mapleExprRef.current) {
+      mapleExprRef.current.publish(new ROSLIB.Message({ data: expressionName }));
+    }
+  
+    // publish the action on /maple_action
     if (mapleActionRef.current) {
       mapleActionRef.current.publish(
         new ROSLIB.Message({
           data: JSON.stringify({
-            expression: correct ? 'HAPPY' : 'SAD',
+            expression: expressionName,
             face_ms: 1000,
             sync: 'parallel',
           }),
         })
       );
     }
-
+  
+    // play feedback sound and advance state when correct
     setFeedbackAudio(correct ? '/CORRECT.mp3' : '/INCORRECT.mp3');
-
     feedbackTimeoutRef.current = setTimeout(() => {
       setFeedbackAudio(null);
       if (correct) setCurrentStateIndex((prev) => prev + 1);
@@ -286,13 +341,19 @@ function App() {
         marginBottom: 10,
       }}
     >
-      <button onClick={handlePause} disabled={isPaused}>
-        Pause
-      </button>
-
-      <button onClick={handlePlay} disabled={!isPaused}>
-        Play
-      </button>
+      {!hasStarted ? (
+        <button onClick={handleStart} disabled={!currentScenario}>
+          Start
+        </button>
+      ) : (
+        <>
+          {!isPaused ? (
+            <button onClick={handlePause}>Pause</button>
+          ) : (
+            <button onClick={handlePlay}>Play</button>
+          )}
+        </>
+      )}
 
       <span style={{ fontSize: 12, opacity: 0.8 }}>
         ROS: {connectionStatus}
@@ -328,7 +389,7 @@ function App() {
               />
             )}
 
-            {/* Buttons directly below the image (or will still show below text if no image) */}
+            {/* Controls directly below the image */}
             <ControlsBelowImage />
 
             {currentState.text && (
@@ -337,12 +398,13 @@ function App() {
               </p>
             )}
 
-            {!isPaused && currentState.audio && (
+            {/* Render the audio element after start; playback is triggered via play() in effects/click handlers */}
+            {hasStarted && currentState.audio && (
               <audio
                 ref={stateAudioRef}
                 key={`state-audio-${currentStateIndex}-${resumeNonce}`}
                 src={`/${currentScenario.scenario_name}/audio/${currentState.audio}`}
-                autoPlay
+                preload="auto"
               />
             )}
 
@@ -351,14 +413,14 @@ function App() {
                 {currentState.options.map((option, index) => (
                   <button
                     key={index}
-                    disabled={isPaused}
+                    disabled={!hasStarted || isPaused}
                     onClick={() => handleOptionClick(option)}
                     style={{
                       padding: '10px 20px',
                       margin: '10px',
                       fontSize: '1em',
-                      cursor: isPaused ? 'not-allowed' : 'pointer',
-                      opacity: isPaused ? 0.6 : 1,
+                      cursor: !hasStarted || isPaused ? 'not-allowed' : 'pointer',
+                      opacity: !hasStarted || isPaused ? 0.6 : 1,
                     }}
                   >
                     {option}
@@ -371,7 +433,7 @@ function App() {
               <audio ref={feedbackAudioRef} src={feedbackAudio} autoPlay />
             )}
 
-            {isPaused && (
+            {hasStarted && isPaused && (
               <div style={{ marginTop: 12, fontSize: 14, opacity: 0.9 }}>
                 Paused (Play replays this section from the start)
               </div>

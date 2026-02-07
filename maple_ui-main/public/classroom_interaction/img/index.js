@@ -40,7 +40,7 @@ function App() {
   }, []);  
 
   useEffect(() => {
-    fetch('/classroom_interaction/scenario_config.json')
+    fetch('/classroom_interaction/scenario_config_market.json')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -131,47 +131,34 @@ function App() {
     }
   }, [ros, currentScenario, currentStateIndex]);
   
-  const handleOptionClick = (selectedOption) => {
-    const state = currentScenario.states[currentStateIndex];
-    const correct = selectedOption === state.answer;
+  // publish the motion
+  publishMotion(expressionName);
   
-    if (ros) {
-      // Update robot's face expression
-      const faceTopic = new ROSLIB.Topic({
-        ros: ros,
-        name: '/pylips_face',
-        messageType: 'std_msgs/String'
-      });
-      
-      faceTopic.publish(new ROSLIB.Message({
-        data: correct ? 'happy' : 'sad'
-      }));
-      
-      // Update robot's motion
-      const motionTopic = new ROSLIB.Topic({
-        ros: ros,
-        name: '/motion_command',
-        messageType: 'std_msgs/String'
-      });
-  
-      motionTopic.publish(new ROSLIB.Message({
-        data: correct ? 'happy' : 'sad'
-      }));
-    }
-  
-    setFeedbackAudio(correct ? '/CORRECT.mp3' : '/INCORRECT.mp3');
-  
-    if (correct) {
-      setTimeout(() => {
-        setFeedbackAudio(null); 
-        setCurrentStateIndex((prevIndex) => prevIndex + 1);
-      }, 3000); 
-    } else {
-      setTimeout(() => {
-        setFeedbackAudio(null); 
-      }, 3000); 
-    }
-  };
+  // publish the expression on /maple_expression
+  if (mapleExprRef.current) {
+    mapleExprRef.current.publish(new ROSLIB.Message({ data: expressionName }));
+  }
+
+  // publish the action on /maple_action
+  if (mapleActionRef.current) {
+    mapleActionRef.current.publish(
+      new ROSLIB.Message({
+        data: JSON.stringify({
+          expression: expressionName,
+          face_ms: 1000,
+          sync: 'parallel',
+        }),
+      })
+    );
+  }
+
+  // play feedback sound and advance state when correct
+  setFeedbackAudio(correct ? '/CORRECT.mp3' : '/INCORRECT.mp3');
+  feedbackTimeoutRef.current = setTimeout(() => {
+    setFeedbackAudio(null);
+    if (correct) setCurrentStateIndex((prev) => prev + 1);
+  }, 3000);
+};
   
   return (
     <div className="App">

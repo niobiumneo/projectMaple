@@ -80,6 +80,34 @@ def _resolve_expression(name):
 'AU12': 0,
 'AU15': 1.5
 }
+
+    elif name == "default":
+        return {
+        
+    'AU1': 0,
+    'AU2': 0,
+    'AU4': 0,
+    'AU5': 0,
+    'AU7': 0,
+    'AU9': 0,
+    'AU43': 0,
+    'AU10': 0,
+    'AU12': 0,
+    'AU13': 0,
+    'AU14': 0,
+    'AU15': 0,
+    'AU16': 0,
+    'AU17': 0,
+    'AU18': 0,
+    'AU20': 0,
+    'AU23': 0,
+    'AU24': 0,
+    'AU25': 0,
+    'AU26': 0,
+    'AU27': 0
+
+            
+}
     s = str(name).strip()
     # Try attribute names in multiple casings
     for cand in (s, s.upper(), s.lower(), s.title()):
