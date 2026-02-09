@@ -224,7 +224,7 @@ function App() {
 
   // Load scenario JSON
   useEffect(() => {
-    fetch('/classroom_interaction/scenario_config_library.json')
+    fetch('/classroom_interaction/scenario_config_main.json')
       .then((response) => {
         if (!response.ok) throw new Error('Network response was not ok');
         return response.json();

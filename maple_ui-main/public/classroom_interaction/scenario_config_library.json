@@ -110,9 +110,11 @@
     "motion": "turnright",
     "transition": {
       "type": "time",
-      "duration": 6000
+      "duration": 3000
       }
     },
+
+  
   
     {
     "id": 32,
@@ -120,30 +122,33 @@
     "motion": "happy",
     "transition": {
       "type": "time",
-      "duration": 6000
+      "duration": 3000
       }
     },
+
+    {
+      "id": 32,
+      "tts":"mapleLibrary3",
+      "image":"maplelibrary6.png",
+      "motion": "narrate",
+      "transition": {
+        "type": "time",
+        "duration": 4000
+        }
+      },
   
     {
     "id": 32,
     "tts":"mapleLibrary2",
     "image":"maplelibrary6.png",
-    "motion": "sad",
+    "motion": "explain",
     "transition": {
       "type": "time",
       "duration": 6000
       }
     },
   
-    {
-    "id": 32,
-    "tts":"mapleLibrary3",
-    "image":"maplelibrary6.png",
-    "transition": {
-      "type": "time",
-      "duration": 6000
-      }
-    },
+
   
     {
       "id": 33,

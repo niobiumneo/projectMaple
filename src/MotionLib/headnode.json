@@ -61,12 +61,7 @@
             "profile_acceleration": 100,
             "goal_positions": [180,180,180,180]
         },
-        {
-            "id": 11,
-            "profile_speed": 50,
-            "profile_acceleration": 100,
-            "goal_positions": [170,170,170,170]
-        },
+
         {
             "id": 12,
             "profile_speed": 50,

@@ -1,0 +1,164 @@
+{
+  "scenario_name": "classroom_interaction",
+  "states": [
+    {
+      "id": 34,
+      "audio":"sunsetN1.mp3",
+      "image":"end0.png",
+      "transition": {
+          "type": "time",
+          "duration": 6000
+        }
+    },
+
+    {
+      "id": 35,
+      "audio":"sunsetN2.mp3",
+      "image":"end1.png",
+      "motion": "headnode",
+      "transition": {
+          "type": "time",
+          "duration": 4000
+        }
+    },
+
+    {
+      "id": 36,
+      "audio":"sunsetR1.mp3",
+      "image":"end1.png",
+      "motion": "lookstraight",
+      "transition": {
+          "type": "time",
+          "duration": 4000
+        }
+    },
+
+    {
+      "id": 37,
+      "audio":"sunsetN3.mp3",
+      "image":"end1.png",
+      "transition": {
+          "type": "time",
+          "duration": 4000
+        }
+    },
+
+      {
+        "id": 38,
+        "audio":"sunsetW1.mp3",
+        "image":"end1.png",
+        "motion": "lookstraight",
+        "transition": {
+            "type": "time",
+            "duration": 4000
+          }
+      },
+
+      {
+        "id": 39,
+        "audio":"sunsetN4.mp3",
+        "image":"end2.png",
+        "motion": "think",
+        "transition": {
+            "type": "time",
+            "duration": 4000
+          }
+      },
+      {
+        "id": 39,
+        "audio":"sunsetR2.mp3",
+        "image":"end2.png",
+        "motion": "think",
+        "transition": {
+            "type": "time",
+            "duration": 4000
+          }
+      },       
+      {
+        "id": 40,
+        "audio":"sunsetN5.mp3",
+        "image":"end2.png",
+        "motion": "headnode",
+        "transition": {
+            "type": "time",
+            "duration": 4000
+          }
+      },
+      {
+        "id": 40,
+        "audio":"sunsetW2.mp3",
+        "image":"end3.png",
+        "motion": "think",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 40,
+        "audio":"sunsetN6.mp3",
+        "image":"end4.png",
+        "motion": "headnode",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 40,
+        "audio":"sunsetR3.mp3",
+        "image":"end4.png",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 41,
+        "audio":"sunsetN7.mp3",
+        "image":"end5.png",
+        "transition": {
+            "type": "time",
+            "duration": 8000
+          }
+      },
+
+      {
+        "id": 41,
+        "motion":"turnright",
+        "transition": {
+            "type": "time",
+            "duration": 3000
+          }
+      },
+      {
+        "id": 42,
+        "tts":"mapleEnd1",
+        "motion":"happy",
+        "transition": {
+            "type": "time",
+            "duration": 3000
+          }
+      },
+
+      {
+        "id": 43,
+        "tts":"mapleEnd2",
+        "motion":"explain",
+        "transition": {
+            "type": "time",
+            "duration": 5000
+          }
+      },
+      {
+        "id": 44,
+        "tts":"mapleEnd3",
+        "motion":"narrate",
+        "transition": {
+            "type": "time",
+            "duration": 3000
+          }
+      }
+
+  ]
+}

@@ -39,8 +39,8 @@ function App() {
     };
   }, []);  
 
-  useEffect(() => {
-    fetch('/classroom_interaction/scenario_config_market.json')
+  useEffect(() => {``
+    fetch('/classroom_interaction/scenario_config_end.json')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
