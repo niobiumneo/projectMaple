@@ -533,7 +533,7 @@ function App() {
     }
 
     // Play browser feedback sound and after 3 seconds advance if correct
-    setFeedbackAudio(correct ? '/CORRECT.mp3' : '/INCORRECT.mp3');
+    setFeedbackAudio(correct ? '/CORRECT.mp3' : '/WRONG.mp3');
     feedbackTimeoutRef.current = setTimeout(() => {
       setFeedbackAudio(null);
       if (correct) setCurrentStateIndex((prev) => prev + 1);
@@ -667,7 +667,7 @@ function App() {
                 alt="state"
                 style={{
                   maxWidth: '100%',
-                  maxHeight: '60vh',
+                  maxHeight: '70vh',
                   margin: '20px',
                   objectFit: 'contain',
                 }}
@@ -716,7 +716,7 @@ function App() {
               )}
 
               {/* ROS connection status */}
-              <span style={{ fontSize: 12, opacity: 0.8 }}>ROS: {connectionStatus}</span>
+              {/* <span style={{ fontSize: 12, opacity: 0.8 }}>ROS: {connectionStatus}</span> */}
             </div>
 
             {/* State text (if present) */}
