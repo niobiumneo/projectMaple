@@ -9,9 +9,10 @@ import ROSLIB from 'roslib';
   2) Loads a scenario JSON and steps through its states.
   3) Plays audio and shows images and quiz options from the scenario.
   4) Records quiz interaction metrics:
-     - which option was pressed
-     - whether it was correct
-     - how long it took to respond
+     - every quiz button press
+     - whether each press was correct
+     - how long each press took
+     - repeated attempts on the same quiz question
      Metrics are hidden on the end screen until the researcher presses Ctrl+M.
 */
 
@@ -74,10 +75,15 @@ function App() {
   const lastPublishKeyRef = useRef('');
 
   // For measuring response time on quiz states
-  // Set when the quiz options appear, cleared after the user answers
   const questionStartTimeRef = useRef(null);
 
-  // All local metrics recorded this run (not automatically saved unless you call save)
+  // Tracks current attempt number for the active quiz state
+  const quizAttemptRef = useRef(0);
+
+  // Helps detect when we enter a new quiz state vs replay/resume the same one
+  const lastQuizStateIndexRef = useRef(null);
+
+  // All local metrics recorded this run
   const metricsRef = useRef([]);
 
   /* -----------------------------
@@ -102,6 +108,15 @@ function App() {
       stateAudioRef.current.pause();
       stateAudioRef.current.currentTime = 0;
     }
+  };
+
+  /* -----------------------------
+     Helper functions: quiz detection
+  ------------------------------ */
+
+  // A "real" quiz state must have options plus an answer
+  const isQuizState = (state) => {
+    return Array.isArray(state?.options) && state.answer !== undefined && state.answer !== null;
   };
 
   /* -----------------------------
@@ -324,7 +339,7 @@ function App() {
      Effect: on state entry
      - publish robot actions
      - schedule time-based transitions
-     - start quiz timer if state has options
+     - start quiz timer only for real quiz states
   ------------------------------ */
 
   useEffect(() => {
@@ -352,11 +367,19 @@ function App() {
       publishMapleActionForState(state, { includeMotion: false });
     }
 
-    // If this state is a quiz, set the timer start time
-    if (state.options) {
+    // Start timing only for actual quiz states
+    if (isQuizState(state)) {
       questionStartTimeRef.current = performance.now();
+
+      // New quiz state: reset attempt counter
+      if (lastQuizStateIndexRef.current !== currentStateIndex) {
+        quizAttemptRef.current = 1;
+        lastQuizStateIndexRef.current = currentStateIndex;
+      }
     } else {
       questionStartTimeRef.current = null;
+      quizAttemptRef.current = 0;
+      lastQuizStateIndexRef.current = null;
     }
 
     // If the state transitions automatically after a duration, schedule it
@@ -469,7 +492,10 @@ function App() {
 
   /* -----------------------------
      Quiz interaction:
-     records a metric, publishes robot feedback, and advances if correct
+     - records every quiz button press
+     - ignores non-quiz option states
+     - restarts timing after wrong feedback ends
+     - advances only when correct
      Correct/wrong feedback is sent to PyLips via /maple_action using .wav files.
      No correct/wrong audio is played in the browser UI.
   ------------------------------ */
@@ -477,10 +503,13 @@ function App() {
   const handleOptionClick = (selectedOption) => {
     if (!currentScenario || isPaused) return;
 
+    const state = currentScenario.states[currentStateIndex];
+
+    // Ignore non-quiz option states so they do not get recorded as quiz metrics
+    if (!isQuizState(state)) return;
+
     // Stop any pending timers before handling click
     clearAllTimeouts();
-
-    const state = currentScenario.states[currentStateIndex];
 
     // Determine correctness
     const correct = selectedOption === state.answer;
@@ -488,22 +517,23 @@ function App() {
     // Motion/expression name for feedback
     const expressionName = correct ? 'happy' : 'sad';
 
-    // Compute response time if we have a quiz timer started
+    // Compute response time for this specific press
     const now = performance.now();
     let timeToPress = null;
     if (questionStartTimeRef.current !== null) {
       timeToPress = now - questionStartTimeRef.current;
     }
 
-    // Store locally
+    // Store every button press as its own metric row
     metricsRef.current.push({
       stateIndex: currentStateIndex,
       selectedOption,
       correct,
+      attemptNumber: quizAttemptRef.current,
       timeToPress,
     });
 
-    // Clear timer for this question after answer
+    // Stop the active timer until feedback finishes
     questionStartTimeRef.current = null;
 
     // Publish robot feedback motion and face expression
@@ -528,9 +558,16 @@ function App() {
       );
     }
 
-    // After 3 seconds, advance if correct
+    // After feedback:
+    // - if correct, move on
+    // - if wrong, start timing the next attempt
     feedbackTimeoutRef.current = setTimeout(() => {
-      if (correct) setCurrentStateIndex((prev) => prev + 1);
+      if (correct) {
+        setCurrentStateIndex((prev) => prev + 1);
+      } else {
+        quizAttemptRef.current += 1;
+        questionStartTimeRef.current = performance.now();
+      }
     }, 3000);
   };
 
@@ -546,6 +583,7 @@ function App() {
         <thead>
           <tr>
             <th style={{ border: '1px solid #ccc', padding: '4px' }}>Question #</th>
+            <th style={{ border: '1px solid #ccc', padding: '4px' }}>Attempt #</th>
             <th style={{ border: '1px solid #ccc', padding: '4px' }}>Selected Option</th>
             <th style={{ border: '1px solid #ccc', padding: '4px' }}>Correct?</th>
             <th style={{ border: '1px solid #ccc', padding: '4px' }}>Time to Press (ms)</th>
@@ -556,6 +594,9 @@ function App() {
             <tr key={idx}>
               <td style={{ border: '1px solid #ccc', padding: '4px', textAlign: 'center' }}>
                 {m.stateIndex}
+              </td>
+              <td style={{ border: '1px solid #ccc', padding: '4px', textAlign: 'center' }}>
+                {m.attemptNumber ?? 'N/A'}
               </td>
               <td style={{ border: '1px solid #ccc', padding: '4px', textAlign: 'center' }}>
                 {m.selectedOption}
@@ -611,6 +652,9 @@ function App() {
           {metricsVisible && (
             <>
               <p style={{ marginTop: '18px' }}>Below are the interaction metrics for this session.</p>
+              <p style={{ marginTop: '4px' }}>
+                Total quiz button presses recorded: {metricsRef.current.length}
+              </p>
 
               <MetricsTable metrics={metricsRef.current} />
 
@@ -624,6 +668,7 @@ function App() {
               {serverMetrics && serverMetrics.length > 0 && (
                 <div style={{ marginTop: '20px', textAlign: 'left' }}>
                   <h3>Metrics retrieved from backend</h3>
+                  <p>Total saved quiz button presses: {serverMetrics.length}</p>
                   <MetricsTable metrics={serverMetrics} />
                 </div>
               )}
@@ -698,13 +743,25 @@ function App() {
                 <>
                   {/* Pause or Play depending on current pause state */}
                   {!isPaused ? (
-                    <button onClick={handlePause} style={{ padding: '14px 28px', fontSize: '1em', borderRadius: '10px',
-                    }}>
+                    <button
+                      onClick={handlePause}
+                      style={{
+                        padding: '14px 28px',
+                        fontSize: '1em',
+                        borderRadius: '10px',
+                      }}
+                    >
                       Pause
                     </button>
                   ) : (
-                    <button onClick={handlePlay} style={{ padding: '14px 28px', fontSize: '1em', borderRadius: '10px',
-                    }}>
+                    <button
+                      onClick={handlePlay}
+                      style={{
+                        padding: '14px 28px',
+                        fontSize: '1em',
+                        borderRadius: '10px',
+                      }}
+                    >
                       Play
                     </button>
                   )}
@@ -732,7 +789,7 @@ function App() {
               />
             )}
 
-            {/* Quiz buttons (if state defines options) */}
+            {/* Quiz buttons / option buttons */}
             {currentState.options && (
               <div style={{ marginTop: '20px' }}>
                 {currentState.options.map((option, index) => (
@@ -741,17 +798,16 @@ function App() {
                     disabled={!hasStarted || isPaused}
                     onClick={() => handleOptionClick(option)}
                     style={{
-                      width: '150px', // Match the start button width
-                      height: '50px', // Match the start button height
+                      width: '150px',
+                      height: '50px',
                       padding: '10px 20px',
                       borderRadius: '10px',
-                      //fill color in boxes for each option
                       backgroundColor: '#FDBA90',
                       margin: '10px',
                       fontSize: '1em',
                       cursor: !hasStarted || isPaused ? 'not-allowed' : 'pointer',
                       opacity: !hasStarted || isPaused ? 0.6 : 1,
-                      textAlign: 'center', // Ensure text is centered
+                      textAlign: 'center',
                     }}
                   >
                     {option}
