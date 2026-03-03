@@ -53,13 +53,13 @@
             "id": 9,
             "profile_speed": 50,
             "profile_acceleration": 100,
-            "goal_positions": [90]
+            "goal_positions": [105]
         },
         {
             "id": 10,
             "profile_speed": 50,
             "profile_acceleration": 100,
-            "goal_positions": [180]
+            "goal_positions": [182]
         },
         {
             "id": 11,

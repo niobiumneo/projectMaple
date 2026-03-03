@@ -18,7 +18,7 @@ groupSyncRead = group_sync_read.GroupSyncRead(portHandler, packetHandler,
                              LEN_PRESENT_POSITION)
 
 # Add motors to read from
-motor_ids = [11]  # Add your motor IDs
+motor_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Add your motor IDs
 for motor_id in motor_ids:
     result = groupSyncRead.addParam(motor_id)
     if result != True:

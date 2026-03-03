@@ -34,9 +34,6 @@ function App() {
   // Which scenario "state" we are currently showing
   const [currentStateIndex, setCurrentStateIndex] = useState(0);
 
-  // Feedback audio file for correct or incorrect responses
-  const [feedbackAudio, setFeedbackAudio] = useState(null);
-
   // Has the participant pressed Start yet?
   const [hasStarted, setHasStarted] = useState(false);
 
@@ -63,9 +60,8 @@ function App() {
   const transitionTimeoutRef = useRef(null);
   const feedbackTimeoutRef = useRef(null);
 
-  // Audio elements in the browser
+  // Audio element in the browser (state audio only)
   const stateAudioRef = useRef(null);
-  const feedbackAudioRef = useRef(null);
 
   // ROS publishers (topics). Stored in refs so we do not recreate them constantly.
   const motionTopicRef = useRef(null);
@@ -100,15 +96,11 @@ function App() {
     }
   };
 
-  // Stop and rewind any browser audio
+  // Stop and rewind browser state audio
   const stopAllBrowserAudio = () => {
     if (stateAudioRef.current) {
       stateAudioRef.current.pause();
       stateAudioRef.current.currentTime = 0;
-    }
-    if (feedbackAudioRef.current) {
-      feedbackAudioRef.current.pause();
-      feedbackAudioRef.current.currentTime = 0;
     }
   };
 
@@ -205,7 +197,6 @@ function App() {
     setIsPaused(true);
     clearAllTimeouts();
     stopAllBrowserAudio();
-    setFeedbackAudio(null);
     publishInteractionControl('pause');
   };
 
@@ -241,7 +232,7 @@ function App() {
 
   useEffect(() => {
     // Update this URL for your network as needed
-    const rosInstance = new ROSLIB.Ros({ url: 'ws://192.168.10.101:9090' });
+    const rosInstance = new ROSLIB.Ros({ url: 'ws://192.168.0.100:9090' });
 
     rosInstance.on('connection', () => {
       console.log('Connected to ROS');
@@ -479,6 +470,8 @@ function App() {
   /* -----------------------------
      Quiz interaction:
      records a metric, publishes robot feedback, and advances if correct
+     Correct/wrong feedback is sent to PyLips via /maple_action using .wav files.
+     No correct/wrong audio is played in the browser UI.
   ------------------------------ */
 
   const handleOptionClick = (selectedOption) => {
@@ -513,29 +506,30 @@ function App() {
     // Clear timer for this question after answer
     questionStartTimeRef.current = null;
 
-    // Publish robot feedback
+    // Publish robot feedback motion and face expression
     publishMotion(expressionName);
 
     if (mapleExprRef.current) {
       mapleExprRef.current.publish(new ROSLIB.Message({ data: expressionName }));
     }
 
+    // PyLips feedback: play correct.wav or wrong.wav on the PyLips side
     if (mapleActionRef.current) {
       mapleActionRef.current.publish(
         new ROSLIB.Message({
           data: JSON.stringify({
+            tts: correct ? 'CORRECT' : 'WRONG',
             expression: expressionName,
             face_ms: 1000,
             sync: 'parallel',
+            wait_speech: false,
           }),
         })
       );
     }
 
-    // Play browser feedback sound and after 3 seconds advance if correct
-    setFeedbackAudio(correct ? '/CORRECT.mp3' : '/WRONG.mp3');
+    // After 3 seconds, advance if correct
     feedbackTimeoutRef.current = setTimeout(() => {
-      setFeedbackAudio(null);
       if (correct) setCurrentStateIndex((prev) => prev + 1);
     }, 3000);
   };
@@ -642,7 +636,7 @@ function App() {
 
   /* -----------------------------
      Main story UI:
-     shows image, text, quiz options, and audio
+     shows image, text, quiz options, and state audio
   ------------------------------ */
 
   return (
@@ -704,11 +698,13 @@ function App() {
                 <>
                   {/* Pause or Play depending on current pause state */}
                   {!isPaused ? (
-                    <button onClick={handlePause} style={{ padding: '10px 18px', fontSize: '1em' }}>
+                    <button onClick={handlePause} style={{ padding: '14px 28px', fontSize: '1em', borderRadius: '10px',
+                    }}>
                       Pause
                     </button>
                   ) : (
-                    <button onClick={handlePlay} style={{ padding: '10px 18px', fontSize: '1em' }}>
+                    <button onClick={handlePlay} style={{ padding: '14px 28px', fontSize: '1em', borderRadius: '10px',
+                    }}>
                       Play
                     </button>
                   )}
@@ -750,7 +746,7 @@ function App() {
                       padding: '10px 20px',
                       borderRadius: '10px',
                       //fill color in boxes for each option
-                        backgroundColor: '#FDBA90',
+                      backgroundColor: '#FDBA90',
                       margin: '10px',
                       fontSize: '1em',
                       cursor: !hasStarted || isPaused ? 'not-allowed' : 'pointer',
@@ -763,9 +759,6 @@ function App() {
                 ))}
               </div>
             )}
-
-            {/* Feedback audio plays only if not paused */}
-            {!isPaused && feedbackAudio && <audio ref={feedbackAudioRef} src={feedbackAudio} autoPlay />}
 
             {/* Pause hint */}
             {hasStarted && isPaused && (

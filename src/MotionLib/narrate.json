@@ -53,7 +53,7 @@
             "id": 9,
             "profile_speed": 100,
             "profile_acceleration": 100,
-            "goal_positions": [100, 100]
+            "goal_positions": [105, 105]
         },
         {
             "id": 10,
