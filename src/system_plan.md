@@ -37,4 +37,4 @@ demo robot_move_node — ros_sync_str_motor_demo.py (subscription uses motion_co
 
 Questions to ask
 - can i scrap the whole demo node and just put it as an action in the web ui or should i keep it as its own node 
-- 
+- can i move the controller to cpp (i think it would be faster? not sure if it will be significant enough?)
