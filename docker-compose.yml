@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  maple:
+    build:
+      context: .
+      dockerfile: robot.Dockerfile
+    image: maple-ros2:latest
+    working_dir: /ws
+    volumes:
+      - ./:/ws
+    environment:
+      - ROS_DISTRO=jazzy
+      - ROS_DOMAIN_ID=0
+    # For Linux hosts prefer host networking for ROS2 discovery:
+    # network_mode: "host"
+    command: bash
+
+  maple-build:
+    image: maple-ros2:latest
+    working_dir: /ws
+    volumes:
+      - ./:/ws
+    environment:
+      - ROS_DISTRO=jazzy
+      - ROS_DOMAIN_ID=0
+    command: bash -lc "source /opt/ros/jazzy/setup.bash && rosdep install --from-paths src --ignore-src -r -y && colcon build --event-handlers console_direct+"

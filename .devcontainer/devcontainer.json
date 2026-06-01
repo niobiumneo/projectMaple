@@ -1,0 +1,20 @@
+{
+  "name": "ROS 2 Workspace",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "developer",
+  "runArgs": [
+    "--pid=host"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-python.python",
+        "ms-iot.vscode-ros"
+      ]
+    }
+  },
+  "postCreateCommand": "sudo rosdep update && sudo apt-get update"
+}
