@@ -183,7 +183,7 @@ void RobotController::run_motion(const std::string &motion_name)
 
 			const int goal_position = motor_angle_to_value(motor.goal_positions[pose_index]);
 
-			int dxl_error = 0;
+			uint8_t dxl_error = 0;
 			int dxl_comm_result = packet_handler_->write4ByteTxRx(
 				port_handler_, motor.id, addr_profile_acceleration_, motor.profile_acceleration, &dxl_error);
 			if (dxl_comm_result != kCommunicationsSuccess) {
@@ -310,7 +310,7 @@ bool RobotController::initialize_robot()
 
 	for (int i = 0; i < motor_count_; ++i) {
 		const int motor_id = first_motor_id_ + i;
-		int dxl_error = 0;
+		uint8_t dxl_error = 0;
 		const int dxl_comm_result = packet_handler_->write1ByteTxRx(
 			port_handler_, motor_id, addr_torque_enable_, torque_enable_, &dxl_error);
 
@@ -343,7 +343,7 @@ void RobotController::shutdown_robot()
 
 	for (int i = 0; i < motor_count_; ++i) {
 		const int motor_id = first_motor_id_ + i;
-		int dxl_error = 0;
+		uint8_t dxl_error = 0;
 		const int dxl_comm_result = packet_handler_->write1ByteTxRx(
 			port_handler_, motor_id, addr_torque_enable_, torque_disable_, &dxl_error);
 

@@ -13,6 +13,8 @@ RUN apt-get update \
     python3-colcon-common-extensions \
     python3-rosdep \
     python3-argcomplete \
+    ros-jazzy-launch-ros-service \
+    nlohmann-json3-dev \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 

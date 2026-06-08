@@ -15,7 +15,7 @@ setup(
     zip_safe=True,
     maintainer='developer',
     maintainer_email='shivamwalia2006@gmail.com',
-    description='TODO: Package description',
+    description='Maple orchestration node: drives the PyLips face and publishes motion commands.',
     license='TODO: License declaration',
     extras_require={
         'test': [
@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'maple_orchestrator = maple_core.maple_orchestrator:main',
         ],
     },
 )
