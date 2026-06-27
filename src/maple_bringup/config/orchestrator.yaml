@@ -1,0 +1,6 @@
+maple_orchestrator:
+  ros__parameters:
+    # Address of the PyLips face server the orchestrator drives.
+    server_ip: "http://127.0.0.1:8000"
+    # PyLips robot/face name (browser face served at <server_ip>/face/<robot_name>).
+    robot_name: "maple"

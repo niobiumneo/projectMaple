@@ -13,10 +13,23 @@ RUN apt-get update \
     python3-colcon-common-extensions \
     python3-rosdep \
     python3-argcomplete \
-    ros-jazzy-launch-ros-service \
+    ros-jazzy-launch-ros \
+    ros-jazzy-rosbridge-suite \
+    ros-dev-tools \
+    ros-jazzy-ament-cmake \
+    ros-jazzy-dynamixel-sdk \
     nlohmann-json3-dev \
+    espeak-ng \
     sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# maple_core runtime dependency (PyPI only; not available via apt/rosdep).
+# --ignore-installed avoids pip trying to uninstall Debian-managed numpy etc.
+# Pin setuptools<80 after pylips: colcon --symlink-install uses setup.py develop,
+# which setuptools 80+ no longer supports (see colcon/colcon-core#696).
+RUN pip3 install --no-cache-dir --break-system-packages --ignore-installed pylips==0.0.17 \
+    && pip3 install --no-cache-dir --break-system-packages --ignore-installed "setuptools>=64.0.0,<80.0.0" \
+    && python3 -c "from allosaurus.bin.download_model import download_model; download_model('latest')"
 
 # Create the devcontainer user expected by devcontainer.json
 ARG USERNAME=developer
@@ -24,19 +37,19 @@ ARG USER_UID=1000
 ARG USER_GID=1000
 RUN set -eux; \
     if getent group "${USER_GID}" >/dev/null; then \
-        GROUP_NAME="$(getent group "${USER_GID}" | cut -d: -f1)"; \
+    GROUP_NAME="$(getent group "${USER_GID}" | cut -d: -f1)"; \
     else \
-        groupadd --gid "${USER_GID}" "${USERNAME}"; \
-        GROUP_NAME="${USERNAME}"; \
+    groupadd --gid "${USER_GID}" "${USERNAME}"; \
+    GROUP_NAME="${USERNAME}"; \
     fi; \
     if id -u "${USERNAME}" >/dev/null 2>&1; then \
-        true; \
+    true; \
     else \
-        UID_CANDIDATE="${USER_UID}"; \
-        while getent passwd "${UID_CANDIDATE}" >/dev/null; do \
-            UID_CANDIDATE="$((UID_CANDIDATE + 1))"; \
-        done; \
-        useradd --uid "${UID_CANDIDATE}" --gid "${GROUP_NAME}" -m "${USERNAME}"; \
+    UID_CANDIDATE="${USER_UID}"; \
+    while getent passwd "${UID_CANDIDATE}" >/dev/null; do \
+    UID_CANDIDATE="$((UID_CANDIDATE + 1))"; \
+    done; \
+    useradd --uid "${UID_CANDIDATE}" --gid "${GROUP_NAME}" -m "${USERNAME}"; \
     fi; \
     echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/${USERNAME}"; \
     chmod 0440 "/etc/sudoers.d/${USERNAME}"

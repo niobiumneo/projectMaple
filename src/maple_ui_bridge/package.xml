@@ -3,12 +3,15 @@
 <package format="3">
   <name>maple_ui_bridge</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Websocket bridge connecting the Maple web UI to ROS 2 via rosbridge_server.</description>
   <maintainer email="shivamwalia2006@gmail.com">developer</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
+
+  <exec_depend>rosbridge_server</exec_depend>
+  <exec_depend>ros2launch</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

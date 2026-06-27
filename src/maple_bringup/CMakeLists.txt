@@ -7,8 +7,13 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# find_package(launch REQUIRED)
-# find_package(launch_ros REQUIRED)
+
+# Install launch files and configuration for the full Maple bringup.
+install(DIRECTORY
+  launch
+  config
+  DESTINATION share/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

@@ -25,3 +25,24 @@ Run the following command in your terminal:
 ``rostopic pub /motion_command std_msgs/String "data: 'wave'"``
 
 This will trigger the robot to execute the motion defined in wave.json located in the MotionLib directory.
+
+
+# Launch the ROS Nodes (will move this later to be a bash script)
+```bash
+# Terminal #1
+python3 -m pylips.face.start --host 0.0.0.0 --port 8000 --skip-audio-unlock
+```
+
+```bash
+# Terminal #2
+cd /workspaces/projectMaple
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 launch maple_bringup maple.launch.py
+```
+
+
+To run with serial port
+```bash
+ls -l /dev/ttyUSB*
+```

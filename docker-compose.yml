@@ -5,6 +5,8 @@ services:
       context: .
       dockerfile: robot.Dockerfile
     image: maple-ros2:latest
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0 # i think i will have to change on the actual machine
     working_dir: /ws
     volumes:
       - ./:/ws

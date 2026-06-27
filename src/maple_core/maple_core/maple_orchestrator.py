@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import warnings
 
 import rclpy
 from rclpy.node import Node
@@ -8,6 +9,12 @@ from std_msgs.msg import String
 # Requires: pip install pylips
 from pylips.speech import RobotFace
 from pylips.face import ExpressionPresets, FacePresets
+
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    message=r"You are using `torch\.load` with `weights_only=False`.*",
+)
 
 custom3 = {
     "background_color": "#d7e4f5",
@@ -274,24 +281,36 @@ class MapleOrchestrator(Node):
 
         sync = str(a.get("sync", "speech_then_motion")).lower()
 
+        def do_speech():
+            if tts:
+                self.get_logger().info(f"-> say: {tts}")
+                try:
+                    # self.face.say(tts, wait=True)  # alternative
+                    self.face.stream_file_to_browser(tts)
+                except Exception as e:
+                    self.get_logger().warn(
+                        f"TTS skipped for '{tts}': {e}. "
+                        "Generate phrases with pylips or place .wav files in pylips_phrases/."
+                    )
+
+        def do_appearance():
+            if appearance is not None:
+                try:
+                    self.apply_appearance(appearance)
+                except Exception as e:
+                    self.get_logger().warn(f"Appearance skipped: {e}")
+
+        def do_express():
+            if express:
+                try:
+                    self.apply_expression(express, duration_ms=face_ms)
+                except Exception as e:
+                    self.get_logger().warn(f"Expression skipped: {e}")
+
         def do_motion():
             if motion:
                 self.motion_pub.publish(String(data=motion))
                 self.get_logger().info(f"-> /motion_command: {motion}")
-
-        def do_speech():
-            if tts:
-                self.get_logger().info(f"-> say: {tts}")
-                # self.face.say(tts, wait=True)  # alternative
-                self.face.stream_file_to_browser(tts)
-
-        def do_appearance():
-            if appearance is not None:
-                self.apply_appearance(appearance)
-
-        def do_express():
-            if express:
-                self.apply_expression(express, duration_ms=face_ms)
 
         if sync == "speech_then_motion":
             do_speech()
