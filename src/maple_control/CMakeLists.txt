@@ -33,7 +33,7 @@ install(DIRECTORY launch config
 )
 
 install(DIRECTORY MotionLib
-  DESTINATION share/$PROJECT_NAME
+  DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

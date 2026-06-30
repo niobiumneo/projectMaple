@@ -1,8 +1,8 @@
 robot_move_node:
   ros__parameters:
     device: "/dev/ttyUSB0"
-    # motion_dir: "/workspaces/projectMaple/src/maple_control/MotionLib"
+ #   motion_dir: "/workspaces/projectMaple/install/maple_control/share/$PROJECT_NAME/MotionLib/"
     baudrate: 1000000
     protocol_version: 2.0
     motor_count: 12
-    first_motor_id: 0
+    first_motor_id: 1

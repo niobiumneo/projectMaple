@@ -5,7 +5,8 @@
   },
   "remoteUser": "developer",
   "runArgs": [
-    "--pid=host"
+    "--pid=host",
+    "--device=/dev/ttyUSB0:/dev/ttyUSB0"
   ],
   "customizations": {
     "vscode": {
