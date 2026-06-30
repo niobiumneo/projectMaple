@@ -46,3 +46,8 @@ To run with serial port
 ```bash
 ls -l /dev/ttyUSB*
 ```
+
+```bash
+ros2 topic pub /maple_action std_msgs/msg/String \
+  "{data: '{\"motion\": \"wave\", \"tts\": \"maplehi\", \"expression\": \"happy\", \"sync\": \"speech_then_motion\"}'}" --once
+```
