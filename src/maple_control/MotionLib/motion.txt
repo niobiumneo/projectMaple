@@ -1,0 +1,26 @@
+{
+    # list time durations between each states
+    "pause_durations": [PAUSE_DURATION_1, PAUSE_DURATION_2, ..., PAUSE_DURATION_n-1],  
+    # list all the motors and position, acceleration, velocity values for each states
+    "motors": [
+        {
+            "id": MOTOR_ID_1,
+            "profile_speed": [PROFILE_SPEED_1, PROFILE_SPEED_2, ..., PROFILE_SPEED_n],
+            "profile_acceleration": [PROFILE_ACCELERATION_1, PROFILE_ACCELERATION_2, ..., PROFILE_ACCELERATION_n],
+            "goal_position": [POSITION_1, POSITION_2, ..., POSITION_n]
+        },
+        {
+            "id": MOTOR_ID_2,
+            "profile_speed": [PROFILE_SPEED_1, PROFILE_SPEED_2, ..., PROFILE_SPEED_n],
+            "profile_acceleration": [PROFILE_ACCELERATION_1, PROFILE_ACCELERATION_2, ..., PROFILE_ACCELERATION_n],
+            "goal_position": [POSITION_1, POSITION_2, ..., POSITION_n]
+        },
+        ...
+        {
+            "id": MOTOR_ID_12,
+            "profile_speed": [PROFILE_SPEED_1, PROFILE_SPEED_2, ..., PROFILE_SPEED_n],
+            "profile_acceleration": [PROFILE_ACCELERATION_1, PROFILE_ACCELERATION_2, ..., PROFILE_ACCELERATION_n],
+            "goal_position": [POSITION_1, POSITION_2, ..., POSITION_n]
+        },
+    ]
+}

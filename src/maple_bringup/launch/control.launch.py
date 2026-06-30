@@ -23,6 +23,10 @@ def generate_launch_description():
     params_file = LaunchConfiguration("params_file")
     device = LaunchConfiguration("device")
     use_control = LaunchConfiguration("use_control")
+    motion_dir = os.path.join(
+        get_package_share_directory("maple_control"),
+        "MotionLib"
+    )
 
     declare_params_file = DeclareLaunchArgument(
         "params_file",
@@ -46,7 +50,7 @@ def generate_launch_description():
         executable="robot_move_node",
         name="robot_move_node",
         output="screen",
-        parameters=[params_file, {"device": device}],
+        parameters=[params_file, {"device": device, "motion_dir": motion_dir}],
     )
 
     return LaunchDescription([
