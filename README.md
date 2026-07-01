@@ -51,3 +51,10 @@ ls -l /dev/ttyUSB*
 ros2 topic pub /maple_action std_msgs/msg/String \
   "{data: '{\"motion\": \"wave\", \"tts\": \"maplehi\", \"expression\": \"happy\", \"sync\": \"speech_then_motion\"}'}" --once
 ```
+
+run on linux machine (can make this into a service as well)
+```bash
+./maple up
+./maple up -v # for logs
+./maple down
+```

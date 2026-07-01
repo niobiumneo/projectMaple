@@ -62,5 +62,5 @@ WORKDIR ${WORKSPACE}
 
 # Default entrypoint sources ROS and the overlay workspace
 SHELL ["/bin/bash", "-c"]
-ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/${ROS_DISTRO}/setup.bash; if [ -f /ws/install/setup.bash ]; then source /ws/install/setup.bash; fi; exec \"$@\"", "--"]
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/jazzy/setup.bash; if [ -f /ws/install/setup.bash ]; then source /ws/install/setup.bash; fi; exec \"$@\"", "--"]
 CMD ["bash"]

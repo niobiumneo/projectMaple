@@ -24,6 +24,7 @@ Thumbs.db
 
 # Node
 node_modules/
+.maple/
 
 # Dev container
 

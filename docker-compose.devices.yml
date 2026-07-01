@@ -1,0 +1,5 @@
+# Optional override — applied by ./maple up when /dev/ttyUSB0 is present.
+services:
+  maple:
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB"

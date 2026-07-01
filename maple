@@ -1,0 +1,207 @@
+#!/usr/bin/env bash
+# Maple stack control — start/stop the robot Docker environment.
+#
+# Usage:
+#   ./maple up          Start container + full stack (checkpoint logs)
+#   ./maple up -v       Start with all container logs streamed
+#   ./maple down        Stop container (and host web UI if running)
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${ROOT}"
+
+VERBOSE=false
+CMD=""
+
+MAPLE_DIR="${ROOT}/.maple"
+UI_PID_FILE="${MAPLE_DIR}/ui.pid"
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") {up|down} [-v]
+
+Commands:
+  up     Build (if needed), start Docker container, and run the full stack
+  down   Stop the container and any host-side web UI
+
+Options:
+  -v     Verbose — stream all container logs (default: major checkpoints only)
+
+Endpoints when up:
+  PyLips face   http://localhost:8000/face/maple
+  rosbridge     ws://localhost:9090
+  Web UI        http://localhost:3000  (if Node.js is installed)
+EOF
+}
+
+checkpoint() {
+  echo "[maple] $*"
+}
+
+die() {
+  echo "[maple] ERROR: $*" >&2
+  exit 1
+}
+
+run_compose() {
+  local -a cargs=(-f "${ROOT}/docker-compose.yml")
+  if [[ -e /dev/ttyUSB0 ]]; then
+    cargs+=(-f "${ROOT}/docker-compose.devices.yml")
+  fi
+  docker compose "${cargs[@]}" "$@"
+}
+
+ensure_executable() {
+  chmod +x "${ROOT}/maple" "${ROOT}/entrypoint.sh" "${ROOT}/scripts/stack.sh" 2>/dev/null || true
+}
+
+start_ui() {
+  if [[ ! -d "${ROOT}/maple_ui-main" ]]; then
+    return 0
+  fi
+  if ! command -v npm >/dev/null 2>&1; then
+    checkpoint "Web UI skipped — npm not found on host"
+    return 0
+  fi
+
+  mkdir -p "${MAPLE_DIR}"
+
+  if [[ -f "${UI_PID_FILE}" ]] && kill -0 "$(cat "${UI_PID_FILE}")" 2>/dev/null; then
+    checkpoint "Web UI already running (pid $(cat "${UI_PID_FILE}"))"
+    return 0
+  fi
+
+  checkpoint "Starting web UI on http://localhost:3000 ..."
+  (
+    cd "${ROOT}/maple_ui-main"
+    if [[ ! -d node_modules ]]; then
+      npm install --silent
+    fi
+    npm start
+  ) >> "${MAPLE_DIR}/ui.log" 2>&1 &
+
+  echo $! > "${UI_PID_FILE}"
+}
+
+stop_ui() {
+  if [[ ! -f "${UI_PID_FILE}" ]]; then
+    return 0
+  fi
+
+  local pid
+  pid="$(cat "${UI_PID_FILE}")"
+  if kill -0 "${pid}" 2>/dev/null; then
+    checkpoint "Stopping web UI (pid ${pid})..."
+    kill "${pid}" 2>/dev/null || true
+    # npm start spawns child processes
+    pkill -P "${pid}" 2>/dev/null || true
+  fi
+  rm -f "${UI_PID_FILE}"
+}
+
+wait_for_stack() {
+  local timeout="${1:-120}"
+  local elapsed=0
+
+  while (( elapsed < timeout )); do
+    if run_compose logs maple 2>/dev/null | grep -q "Stack ready"; then
+      return 0
+    fi
+    if ! run_compose ps --status running maple 2>/dev/null | grep -q maple; then
+      return 1
+    fi
+    sleep 2
+    elapsed=$((elapsed + 2))
+  done
+  return 1
+}
+
+cmd_up() {
+  ensure_executable
+
+  if ! command -v docker >/dev/null 2>&1; then
+    die "docker not found — install Docker Desktop or Docker Engine"
+  fi
+
+  if [[ -e /dev/ttyUSB0 ]]; then
+    checkpoint "Motor device /dev/ttyUSB0 detected"
+  else
+    checkpoint "No /dev/ttyUSB0 — stack will start without motor control"
+  fi
+
+  checkpoint "Building Docker image (if needed)..."
+  if [[ "${VERBOSE}" == true ]]; then
+    run_compose build maple
+    checkpoint "Starting container..."
+    run_compose up -d maple
+    start_ui
+    checkpoint "Streaming container logs (Ctrl+C to stop following — container keeps running)..."
+    run_compose logs -f maple
+    return 0
+  fi
+
+  run_compose build maple >/dev/null
+  checkpoint "Docker image ready"
+
+  checkpoint "Starting container..."
+  run_compose up -d maple
+  checkpoint "Container started"
+
+  checkpoint "Waiting for stack (PyLips + ROS)..."
+  if wait_for_stack 180; then
+    checkpoint "PyLips face   → http://localhost:8000/face/maple"
+    checkpoint "rosbridge     → ws://localhost:9090"
+  else
+    checkpoint "Stack may still be starting — check: ./maple up -v"
+    checkpoint "Or inspect logs: docker compose logs maple"
+  fi
+
+  start_ui
+
+  checkpoint "Stack is up"
+  checkpoint "Verbose logs: ./maple up -v   |   Stop: ./maple down"
+}
+
+cmd_down() {
+  checkpoint "Stopping web UI..."
+  stop_ui
+
+  if command -v docker >/dev/null 2>&1; then
+    checkpoint "Stopping Docker container..."
+    run_compose down --remove-orphans 2>/dev/null || true
+    checkpoint "Container stopped"
+  fi
+
+  checkpoint "Stack is down"
+}
+
+# --- parse args ---
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    up|down|stop)
+      CMD="$1"
+      shift
+      ;;
+    -v|--verbose)
+      VERBOSE=true
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "[maple] ERROR: Unknown argument: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+[[ -n "${CMD}" ]] || { usage; exit 1; }
+
+case "${CMD}" in
+  up)   cmd_up ;;
+  down|stop) cmd_down ;;
+esac
