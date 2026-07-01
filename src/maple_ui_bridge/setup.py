@@ -18,7 +18,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='developer',
-    maintainer_email='shivamwalia2006@gmail.com',
+    maintainer_email='shivam.walia@uwaterloo.ca',
     description='Websocket bridge connecting the Maple web UI to ROS 2 via rosbridge_server.',
     license='TODO: License declaration',
     extras_require={

@@ -4,7 +4,7 @@
   <name>maple_control</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="shivamwalia2006@gmail.com">developer</maintainer>
+  <maintainer email="shivam.walia@uwaterloo.ca">developer</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

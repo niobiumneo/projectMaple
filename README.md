@@ -1,60 +1,97 @@
-# Maple Robot Motion Control Script
+# Maple
 
-This script is designed to control the Maple robot with multiple Dynamixel motors using ROS (Robot Operating System). The script listens to a ROS topic (`/motion_command`) for commands to move the robot based on predefined motion configurations stored in JSON files.
+ROS 2 stack for the Maple classroom robot: Dynamixel motion control, PyLips face/expressions, and a React web UI over rosbridge.
 
-## Prerequisites
+## Quick start
 
-Before running this script, ensure that the following are installed and configured on your system:
+On a Linux machine with [Docker](https://docs.docker.com/get-docker/) installed:
 
-1. **ROS (Robot Operating System)**
-   - Ensure ROS is installed and properly configured on the system. This repository has been tested on ROS Noetic.
-
-2. **Dynamixel SDK**
-   - The script relies on the Dynamixel SDK to interface with the motors. For more details, refer to the official documentation: [Dynamixel SDK Download](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/download/).
-   
-3. **Configuration Files**
-   - `dr_r_config.py`: This file defines the configuration parameters for the Maple robot.
-   - `MotionLib`: This directory contains JSON files with motion configurations. To add a new motion, follow the JSON file template to create a new file under the `MotionLib` directory. For file format details, refer to `motion.txt` under the `MotionLib` directory.
-
-## DEMO
-
-To see a demo of the Maple robot executing a motion:
-
-Run the following command in your terminal:
-
-``rostopic pub /motion_command std_msgs/String "data: 'wave'"``
-
-This will trigger the robot to execute the motion defined in wave.json located in the MotionLib directory.
-
-
-# Launch the ROS Nodes (will move this later to be a bash script)
 ```bash
-# Terminal #1
-python3 -m pylips.face.start --host 0.0.0.0 --port 8000 --skip-audio-unlock
+chmod +x ./maple
+./maple up
 ```
 
+
+| Command         | Description                                              |
+| --------------- | -------------------------------------------------------- |
+| `./maple up`    | Build image (if needed), start container, run full stack |
+| `./maple up -v` | Same as above, stream all container logs                 |
+| `./maple down`  | Stop container and web UI                                |
+
+
+**Endpoints when running:**
+
+
+| Service     | URL                                                                       |
+| ----------- | ------------------------------------------------------------------------- |
+| PyLips face | [http://localhost:8000/face/maple](http://localhost:8000/face/maple)      |
+| rosbridge   | ws://localhost:9090                                                       |
+| Web UI      | [http://localhost:3000](http://localhost:3000) (requires Node.js on host) |
+
+
+Connect the Dynamixel USB adapter before `./maple up` so motor control is enabled (`/dev/ttyUSB0`). Without it, the stack still runs face + orchestrator + rosbridge, but skips `robot_move_node`.
+
+## ROS 2 packages
+
+
+| Package           | Role                                                 |
+| ----------------- | ---------------------------------------------------- |
+| `maple_bringup`   | Top-level launch files                               |
+| `maple_core`      | Orchestrator — routes UI actions to face and motions |
+| `maple_control`   | C++ motor controller (`robot_move_node`)             |
+| `maple_ui_bridge` | rosbridge launch helpers                             |
+
+
+Legacy ROS 1 code lives in `archive/src(old)/` and is not built.
+
+## Manual launch (inside container or dev environment)
+
 ```bash
-# Terminal #2
-cd /workspaces/projectMaple
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
+
+# Terminal 1 — PyLips face server
+python3 -m pylips.server
+
+# Terminal 2 — full stack
 ros2 launch maple_bringup maple.launch.py
+
+# Without hardware
+ros2 launch maple_bringup maple.launch.py use_control:=false
 ```
 
+Build the workspace:
 
-To run with serial port
 ```bash
-ls -l /dev/ttyUSB*
+colcon build --symlink-install
 ```
+
+
+
+## Test a motion from the CLI
 
 ```bash
 ros2 topic pub /maple_action std_msgs/msg/String \
   "{data: '{\"motion\": \"wave\", \"tts\": \"maplehi\", \"expression\": \"happy\", \"sync\": \"speech_then_motion\"}'}" --once
 ```
 
-run on linux machine (can make this into a service as well)
-```bash
-./maple up
-./maple up -v # for logs
-./maple down
-```
+Motion definitions are JSON files in `src/maple_control/MotionLib/`.
+
+## Docker layout
+
+All container files live under `docker/`:
+
+- `Dockerfile` — ROS 2 Jazzy image with build tools and PyLips
+- `docker-compose.yml` — runtime stack
+- `entrypoint.sh` — builds workspace, starts PyLips + `ros2 launch`
+
+VS Code devcontainer config is in `.devcontainer/` and uses the same Dockerfile.
+
+## Prerequisites
+
+- **Robot runtime:** Docker, Linux recommended for USB serial passthrough
+- **Development:** ROS 2 Jazzy, colcon, Dynamixel SDK (included in Docker image)
+- **Python deps:** see `requirements.txt` (PyLips and related packages)
+- **Web UI:** Node.js — run from `maple_ui-main/` with `npm install && npm start`
+
+Ensure the web UI rosbridge URL matches your host (`ws://localhost:9090` for local dev).

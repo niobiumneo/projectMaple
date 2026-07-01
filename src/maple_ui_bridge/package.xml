@@ -4,7 +4,7 @@
   <name>maple_ui_bridge</name>
   <version>0.0.0</version>
   <description>Websocket bridge connecting the Maple web UI to ROS 2 via rosbridge_server.</description>
-  <maintainer email="shivamwalia2006@gmail.com">developer</maintainer>
+  <maintainer email="shivam.walia@uwaterloo.ca">developer</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>

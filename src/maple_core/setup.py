@@ -14,7 +14,7 @@ setup(
     install_requires=['setuptools', 'pylips==0.0.17'],
     zip_safe=True,
     maintainer='developer',
-    maintainer_email='shivamwalia2006@gmail.com',
+    maintainer_email='shivam.walia@uwaterloo.ca',
     description='Maple orchestration node: drives the PyLips face and publishes motion commands.',
     license='TODO: License declaration',
     extras_require={
