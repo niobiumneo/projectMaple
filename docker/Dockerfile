@@ -31,7 +31,7 @@ RUN pip3 install --no-cache-dir --break-system-packages --ignore-installed pylip
     && pip3 install --no-cache-dir --break-system-packages --ignore-installed "setuptools>=64.0.0,<80.0.0" \
     && python3 -c "from allosaurus.bin.download_model import download_model; download_model('latest')"
 
-# Create the devcontainer user expected by devcontainer.json
+# Dev / interactive shell user
 ARG USERNAME=developer
 ARG USER_UID=1000
 ARG USER_GID=1000
@@ -54,13 +54,11 @@ RUN set -eux; \
     echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/${USERNAME}"; \
     chmod 0440 "/etc/sudoers.d/${USERNAME}"
 
-# Initialize rosdep
 RUN rosdep init || true
 RUN rosdep update
 
 WORKDIR ${WORKSPACE}
 
-# Default entrypoint sources ROS and the overlay workspace
 SHELL ["/bin/bash", "-c"]
-ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/jazzy/setup.bash; if [ -f /ws/install/setup.bash ]; then source /ws/install/setup.bash; fi; exec \"$@\"", "--"]
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/${ROS_DISTRO}/setup.bash; if [ -f /ws/install/setup.bash ]; then source /ws/install/setup.bash; fi; exec \"$@\"", "--"]
 CMD ["bash"]

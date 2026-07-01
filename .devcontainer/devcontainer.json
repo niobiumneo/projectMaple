@@ -1,7 +1,8 @@
 {
   "name": "ROS 2 Workspace",
   "build": {
-    "dockerfile": "dev.Dockerfile"
+    "dockerfile": "../docker/Dockerfile",
+    "context": ".."
   },
   "remoteUser": "developer",
   "runArgs": [

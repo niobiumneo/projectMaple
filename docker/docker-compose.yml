@@ -1,0 +1,32 @@
+services:
+  maple:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: maple-ros2:latest
+    container_name: maple
+    working_dir: /ws
+    volumes:
+      - ..:/ws
+    environment:
+      - ROS_DISTRO=jazzy
+      - ROS_DOMAIN_ID=0
+    ports:
+      - "8000:8000"   # PyLips face server
+      - "9090:9090"   # rosbridge WebSocket
+    entrypoint: ["/ws/docker/entrypoint.sh"]
+    restart: unless-stopped
+
+  maple-build:
+    profiles: ["build"]
+    image: maple-ros2:latest
+    working_dir: /ws
+    volumes:
+      - ..:/ws
+    environment:
+      - ROS_DISTRO=jazzy
+      - ROS_DOMAIN_ID=0
+    command: >
+      bash -lc "source /opt/ros/jazzy/setup.bash &&
+      rosdep install --from-paths src --ignore-src -r -y &&
+      colcon build --symlink-install --event-handlers console_direct+"

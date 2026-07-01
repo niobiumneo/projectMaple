@@ -44,16 +44,18 @@ die() {
   exit 1
 }
 
+DOCKER_DIR="${ROOT}/docker"
+
 run_compose() {
-  local -a cargs=(-f "${ROOT}/docker-compose.yml")
+  local -a cargs=(-f "${DOCKER_DIR}/docker-compose.yml")
   if [[ -e /dev/ttyUSB0 ]]; then
-    cargs+=(-f "${ROOT}/docker-compose.devices.yml")
+    cargs+=(-f "${DOCKER_DIR}/docker-compose.devices.yml")
   fi
   docker compose "${cargs[@]}" "$@"
 }
 
 ensure_executable() {
-  chmod +x "${ROOT}/maple" "${ROOT}/entrypoint.sh" "${ROOT}/scripts/stack.sh" 2>/dev/null || true
+  chmod +x "${ROOT}/maple" "${DOCKER_DIR}/entrypoint.sh" 2>/dev/null || true
 }
 
 start_ui() {
