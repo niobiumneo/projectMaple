@@ -14,8 +14,9 @@ services:
     ports:
       - "8000:8000"   # PyLips face server
       - "9090:9090"   # rosbridge WebSocket
-    entrypoint: ["/ws/docker/entrypoint.sh"]
-    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    command: sleep infinity
 
   maple-build:
     profiles: ["build"]

@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Maple stack control — start/stop the robot Docker environment.
+# Maple stack control — build, enter container, start/stop the robot stack.
 #
 # Usage:
-#   ./maple up          Start container + full stack (checkpoint logs)
-#   ./maple up -v       Start with all container logs streamed
-#   ./maple down        Stop container (and host web UI if running)
+#   ./maple build       Build the Docker image
+#   ./maple up          Start container and open an interactive shell
+#   ./maple start       Run the full stack inside the container (PyLips + ROS)
+#   ./maple down        Stop container and web UI
 
 set -euo pipefail
 
@@ -16,22 +17,30 @@ CMD=""
 
 MAPLE_DIR="${ROOT}/.maple"
 UI_PID_FILE="${MAPLE_DIR}/ui.pid"
+DOCKER_DIR="${ROOT}/docker"
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") {up|down} [-v]
+Usage: $(basename "$0") {build|up|start|down} [-v]
 
 Commands:
-  up     Build (if needed), start Docker container, and run the full stack
-  down   Stop the container and any host-side web UI
+  build   Build the Docker image (run this before first ./maple up)
+  up      Start the container and open an interactive bash shell
+  start   Launch the full robot stack inside the container (PyLips + ROS)
+  down    Stop the container and any host-side web UI
 
 Options:
-  -v     Verbose — stream all container logs (default: major checkpoints only)
+  -v      Verbose output (show full Docker build logs)
 
-Endpoints when up:
+Inside the container:
+  source install/setup.bash
+  ros2 launch maple_bringup maple.launch.py
+  /ws/docker/entrypoint.sh          # same as ./maple start
+
+Endpoints when stack is running:
   PyLips face   http://localhost:8000/face/maple
   rosbridge     ws://localhost:9090
-  Web UI        http://localhost:3000  (if Node.js is installed)
+  Web UI        http://localhost:3000  (if Node.js is installed on host)
 EOF
 }
 
@@ -44,8 +53,6 @@ die() {
   exit 1
 }
 
-DOCKER_DIR="${ROOT}/docker"
-
 run_compose() {
   local -a cargs=(-f "${DOCKER_DIR}/docker-compose.yml")
   if [[ -e /dev/ttyUSB0 ]]; then
@@ -56,6 +63,25 @@ run_compose() {
 
 ensure_executable() {
   chmod +x "${ROOT}/maple" "${DOCKER_DIR}/entrypoint.sh" 2>/dev/null || true
+}
+
+require_docker() {
+  if ! command -v docker >/dev/null 2>&1; then
+    die "docker not found — install Docker Desktop or Docker Engine"
+  fi
+}
+
+container_running() {
+  run_compose ps --status running maple 2>/dev/null | grep -q maple
+}
+
+ensure_container() {
+  if container_running; then
+    return 0
+  fi
+  checkpoint "Starting container..."
+  run_compose up -d maple
+  checkpoint "Container started"
 }
 
 start_ui() {
@@ -96,73 +122,73 @@ stop_ui() {
   if kill -0 "${pid}" 2>/dev/null; then
     checkpoint "Stopping web UI (pid ${pid})..."
     kill "${pid}" 2>/dev/null || true
-    # npm start spawns child processes
     pkill -P "${pid}" 2>/dev/null || true
   fi
   rm -f "${UI_PID_FILE}"
 }
 
-wait_for_stack() {
-  local timeout="${1:-120}"
-  local elapsed=0
+cmd_build() {
+  ensure_executable
+  require_docker
 
-  while (( elapsed < timeout )); do
-    if run_compose logs maple 2>/dev/null | grep -q "Stack ready"; then
-      return 0
-    fi
-    if ! run_compose ps --status running maple 2>/dev/null | grep -q maple; then
-      return 1
-    fi
-    sleep 2
-    elapsed=$((elapsed + 2))
-  done
-  return 1
+  checkpoint "Building Docker image..."
+  if [[ "${VERBOSE}" == true ]]; then
+    run_compose build maple
+  else
+    run_compose build maple
+    checkpoint "Build complete — run ./maple up to enter the container"
+  fi
 }
 
 cmd_up() {
   ensure_executable
+  require_docker
 
-  if ! command -v docker >/dev/null 2>&1; then
-    die "docker not found — install Docker Desktop or Docker Engine"
+  if ! docker image inspect maple-ros2:latest >/dev/null 2>&1; then
+    checkpoint "Image not found — running build first..."
+    cmd_build
   fi
 
   if [[ -e /dev/ttyUSB0 ]]; then
-    checkpoint "Motor device /dev/ttyUSB0 detected"
+    checkpoint "Motor device /dev/ttyUSB0 detected (available inside container)"
   else
-    checkpoint "No /dev/ttyUSB0 — stack will start without motor control"
+    checkpoint "No /dev/ttyUSB0 — motor control unavailable until device is connected"
   fi
 
-  checkpoint "Building Docker image (if needed)..."
+  ensure_container
+
+  checkpoint "Entering container (type 'exit' to leave — container keeps running)..."
+  run_compose exec -it maple bash -lc '
+    source /opt/ros/jazzy/setup.bash
+    if [[ -f /ws/install/setup.bash ]]; then
+      source /ws/install/setup.bash
+    fi
+    cd /ws
+    exec bash
+  '
+}
+
+cmd_start() {
+  ensure_executable
+  require_docker
+  ensure_container
+
+  checkpoint "Starting full stack in container (PyLips + ROS)..."
   if [[ "${VERBOSE}" == true ]]; then
-    run_compose build maple
-    checkpoint "Starting container..."
-    run_compose up -d maple
-    start_ui
-    checkpoint "Streaming container logs (Ctrl+C to stop following — container keeps running)..."
-    run_compose logs -f maple
-    return 0
-  fi
-
-  run_compose build maple >/dev/null
-  checkpoint "Docker image ready"
-
-  checkpoint "Starting container..."
-  run_compose up -d maple
-  checkpoint "Container started"
-
-  checkpoint "Waiting for stack (PyLips + ROS)..."
-  if wait_for_stack 180; then
+    run_compose exec maple /ws/docker/entrypoint.sh
+  else
+    run_compose exec -d maple /ws/docker/entrypoint.sh
+    sleep 3
+    if run_compose logs maple 2>/dev/null | grep -q "Stack ready"; then
+      checkpoint "Stack is running"
+    else
+      checkpoint "Stack starting — logs: docker compose -f docker/docker-compose.yml logs -f maple"
+    fi
     checkpoint "PyLips face   → http://localhost:8000/face/maple"
     checkpoint "rosbridge     → ws://localhost:9090"
-  else
-    checkpoint "Stack may still be starting — check: ./maple up -v"
-    checkpoint "Or inspect logs: docker compose logs maple"
   fi
 
   start_ui
-
-  checkpoint "Stack is up"
-  checkpoint "Verbose logs: ./maple up -v   |   Stop: ./maple down"
 }
 
 cmd_down() {
@@ -181,7 +207,7 @@ cmd_down() {
 # --- parse args ---
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    up|down|stop)
+    build|up|start|down|stop)
       CMD="$1"
       shift
       ;;
@@ -204,6 +230,8 @@ done
 [[ -n "${CMD}" ]] || { usage; exit 1; }
 
 case "${CMD}" in
-  up)   cmd_up ;;
-  down|stop) cmd_down ;;
+  build)       cmd_build ;;
+  up)          cmd_up ;;
+  start)       cmd_start ;;
+  down|stop)   cmd_down ;;
 esac
