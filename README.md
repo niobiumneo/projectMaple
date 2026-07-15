@@ -1,27 +1,116 @@
-# Maple Robot Motion Control Script
+# Maple
 
-This script is designed to control the Maple robot with multiple Dynamixel motors using ROS (Robot Operating System). The script listens to a ROS topic (`/motion_command`) for commands to move the robot based on predefined motion configurations stored in JSON files.
+Maple is a tutor-mediated social robot platform designed for English language and Canadian cultural learning activities with young newcomer children. The system coordinates Dynamixel motor motions, speech, facial expressions, and a scenario-based web interface.
 
-## Prerequisites
+> **This `main` branch contains the ROS 1 implementation.**
 
-Before running this script, ensure that the following are installed and configured on your system:
+## Implementations
 
-1. **ROS (Robot Operating System)**
-   - Ensure ROS is installed and properly configured on the system. This repository has been tested on ROS Noetic.
+| Implementation | Branch | Environment |
+| --- | --- | --- |
+| ROS 1 | [`main`](https://github.com/niobiumneo/projectMaple/tree/main) | ROS Noetic, tested on Ubuntu 22.04 |
+| ROS 2 | [`ros2code`](https://github.com/niobiumneo/projectMaple/tree/ros2code) | ROS 2 Jazzy in Docker. A Linux host, including Ubuntu 24.04, can run the container |
 
-2. **Dynamixel SDK**
-   - The script relies on the Dynamixel SDK to interface with the motors. For more details, refer to the official documentation: [Dynamixel SDK Download](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/download/).
-   
-3. **Configuration Files**
-   - `dr_r_config.py`: This file defines the configuration parameters for the Maple robot.
-   - `MotionLib`: This directory contains JSON files with motion configurations. To add a new motion, follow the JSON file template to create a new file under the `MotionLib` directory. For file format details, refer to `motion.txt` under the `MotionLib` directory.
+The ROS 2 branch includes its own Docker setup and instructions. See [ROS 2 and Docker](#ros-2-and-docker) below.
 
-## DEMO
+## Repository overview
 
-To see a demo of the Maple robot executing a motion:
+- `src/robot_ctr.py`: executes JSON-defined Dynamixel motions and listens on `/motion_command`
+- `src/maple_orchestrator.py`: coordinates motion, PyLips speech, and facial expressions
+- `src/MotionLib/`: motion definitions stored as JSON files
+- `src/dr_r_config.py`: Dynamixel communication and motor configuration
+- `maple_ui-main/`: React scenario interface connected to ROS through rosbridge
 
-Run the following command in your terminal:
+## Requirements
 
-``rostopic pub /motion_command std_msgs/String "data: 'wave'"``
+For the ROS 1 implementation on this branch:
 
-This will trigger the robot to execute the motion defined in wave.json located in the MotionLib directory.
+- ROS Noetic
+- Python 3
+- [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/download/)
+- [PyLips](https://github.com/interaction-lab/PyLips)
+- A Dynamixel USB adapter, configured as `/dev/ttyUSB0` by default
+- `rosbridge_server`, Node.js, and npm if using the web interface
+
+## Build the ROS 1 package
+
+Clone the repository into a catkin workspace:
+
+```bash
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+git clone https://github.com/niobiumneo/projectMaple.git
+
+cd ~/catkin_ws
+catkin_make
+source devel/setup.bash
+```
+
+Before connecting the robot, review `src/dr_r_config.py` and confirm the serial device, baud rate, protocol version, motor IDs, and position limits match the hardware.
+
+## Run a motion
+
+Start the ROS master:
+
+```bash
+roscore
+```
+
+In another terminal, start the motor controller from the `src` directory:
+
+```bash
+cd ~/catkin_ws/src/projectMaple/src
+python3 robot_ctr.py
+```
+
+Publish a named motion. The name must match a JSON file in `src/MotionLib/`:
+
+```bash
+rostopic pub --once /motion_command std_msgs/String "data: 'wave'"
+```
+
+Motion execution can also be controlled through `/interaction_control` using `pause`, `resume`, or `stop`:
+
+```bash
+rostopic pub --once /interaction_control std_msgs/String "data: 'stop'"
+```
+
+## Web interface
+
+The React interface uses rosbridge to exchange commands with ROS.
+
+Start rosbridge:
+
+```bash
+roslaunch rosbridge_server rosbridge_websocket.launch
+```
+
+Then start the interface:
+
+```bash
+cd maple_ui-main
+npm install
+npm start
+```
+
+The development interface is available at [http://localhost:3000](http://localhost:3000). See [`maple_ui-main/README.md`](maple_ui-main/README.md) for scenario and media configuration.
+
+## Adding motions
+
+Add a JSON motion file to `src/MotionLib/`. Each motion defines motor IDs, goal positions, speed, acceleration, and timing between poses. Use `src/MotionLib/motion.txt` as the format reference.
+
+## ROS 2 and Docker
+
+A ROS 2 equivalent is maintained on the [`ros2code` branch](https://github.com/niobiumneo/projectMaple/tree/ros2code). It uses ROS 2 Jazzy in Docker and can be run from an Ubuntu 24.04 host without installing ROS 2 directly on the host.
+
+```bash
+git switch ros2code
+chmod +x ./maple
+./maple up
+```
+
+Refer to the README on that branch for the complete ROS 2 setup, Docker commands, and service endpoints.
+
+## Hardware safety
+
+Running the motor controller enables actuator torque. Confirm the robot has a clear workspace, verify all configured limits, and keep an emergency stop or immediate power disconnect available during testing.
