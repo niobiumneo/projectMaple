@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Maple
+Comment=Start the Maple classroom robot (ROS + face + UI)
+# %k is this .desktop file's path — works when double-clicked from the file manager.
+Exec=bash -c '"$(dirname "$(readlink -f "%k")")/maple-app.sh" start'
+Icon=maple
+Path=
+Terminal=false
+Categories=Education;Science;Robotics;
+StartupNotify=true

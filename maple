@@ -5,6 +5,7 @@
 #   ./maple build       Build the Docker image
 #   ./maple up          Start container and open an interactive shell
 #   ./maple start       Run the full stack inside the container (PyLips + ROS)
+#   ./maple app         Desktop-app launch: start stack and open the UI
 #   ./maple down        Stop container and web UI
 
 set -euo pipefail
@@ -13,34 +14,34 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${ROOT}"
 
 VERBOSE=false
+OPEN_BROWSER=false
 CMD=""
 
 MAPLE_DIR="${ROOT}/.maple"
 UI_PID_FILE="${MAPLE_DIR}/ui.pid"
 DOCKER_DIR="${ROOT}/docker"
+FACE_URL="http://localhost:8000/face/maple"
+UI_URL="http://localhost:3000"
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") {build|up|start|down} [-v]
+Usage: $(basename "$0") {build|up|start|app|down} [-v] [--open]
 
 Commands:
-  build   Build the Docker image (run this before first ./maple up)
+  build   Build the Docker image (run this before first use)
   up      Start the container and open an interactive bash shell
   start   Launch the full robot stack inside the container (PyLips + ROS)
+  app     Same as start, then open the face/UI in a browser (for double-click)
   down    Stop the container and any host-side web UI
 
 Options:
-  -v      Verbose output (show full Docker build logs)
-
-Inside the container:
-  source install/setup.bash
-  ros2 launch maple_bringup maple.launch.py
-  /ws/docker/entrypoint.sh          # same as ./maple start
+  -v, --verbose   Verbose output (show full Docker / stack logs)
+  --open          After start, open the web UI in the default browser
 
 Endpoints when stack is running:
-  PyLips face   http://localhost:8000/face/maple
+  PyLips face   ${FACE_URL}
   rosbridge     ws://localhost:9090
-  Web UI        http://localhost:3000  (if Node.js is installed on host)
+  Web UI        ${UI_URL}  (if Node.js is installed on host)
 EOF
 }
 
@@ -143,11 +144,7 @@ cmd_build() {
 cmd_up() {
   ensure_executable
   require_docker
-
-  if ! docker image inspect maple-ros2:latest >/dev/null 2>&1; then
-    checkpoint "Image not found — running build first..."
-    cmd_build
-  fi
+  ensure_image
 
   if [[ -e /dev/ttyUSB0 ]]; then
     checkpoint "Motor device /dev/ttyUSB0 detected (available inside container)"
@@ -168,9 +165,45 @@ cmd_up() {
   '
 }
 
+ensure_image() {
+  if docker image inspect maple-ros2:latest >/dev/null 2>&1; then
+    return 0
+  fi
+  checkpoint "Image not found — running build first..."
+  cmd_build
+}
+
+open_browser() {
+  local url="$1"
+  if command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "${url}" >/dev/null 2>&1 || true
+  elif command -v open >/dev/null 2>&1; then
+    open "${url}" >/dev/null 2>&1 || true
+  fi
+}
+
+wait_for_url() {
+  local url="$1"
+  local attempts="${2:-30}"
+  local i
+  for ((i = 0; i < attempts; i++)); do
+    if command -v curl >/dev/null 2>&1; then
+      if curl -sf -o /dev/null --max-time 1 "${url}"; then
+        return 0
+      fi
+    else
+      sleep 1
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+
 cmd_start() {
   ensure_executable
   require_docker
+  ensure_image
   ensure_container
 
   checkpoint "Starting full stack in container (PyLips + ROS)..."
@@ -184,11 +217,26 @@ cmd_start() {
     else
       checkpoint "Stack starting — logs: docker compose -f docker/docker-compose.yml logs -f maple"
     fi
-    checkpoint "PyLips face   → http://localhost:8000/face/maple"
+    checkpoint "PyLips face   → ${FACE_URL}"
     checkpoint "rosbridge     → ws://localhost:9090"
   fi
 
   start_ui
+
+  if [[ "${OPEN_BROWSER}" == true ]]; then
+    checkpoint "Waiting for services, then opening browser..."
+    wait_for_url "${FACE_URL}" 45 || true
+    open_browser "${FACE_URL}"
+    if command -v npm >/dev/null 2>&1 && [[ -d "${ROOT}/maple_ui-main" ]]; then
+      wait_for_url "${UI_URL}" 60 || true
+      open_browser "${UI_URL}"
+    fi
+  fi
+}
+
+cmd_app() {
+  OPEN_BROWSER=true
+  cmd_start
 }
 
 cmd_down() {
@@ -207,12 +255,16 @@ cmd_down() {
 # --- parse args ---
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    build|up|start|down|stop)
+    build|up|start|app|down|stop)
       CMD="$1"
       shift
       ;;
     -v|--verbose)
       VERBOSE=true
+      shift
+      ;;
+    --open)
+      OPEN_BROWSER=true
       shift
       ;;
     -h|--help)
@@ -233,5 +285,6 @@ case "${CMD}" in
   build)       cmd_build ;;
   up)          cmd_up ;;
   start)       cmd_start ;;
+  app)         cmd_app ;;
   down|stop)   cmd_down ;;
 esac

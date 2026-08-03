@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Stop Maple
+Comment=Stop the Maple robot stack and web UI
+Exec=bash -c '"$(dirname "$(readlink -f "%k")")/maple-app.sh" stop'
+Icon=maple
+Terminal=false
+Categories=Education;Science;Robotics;
+StartupNotify=true
